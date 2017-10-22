@@ -1,0 +1,33 @@
+{
+  "name": "pouchdb-activerecord",
+  "version": "0.0.1",
+  "description": "",
+  "scripts": {
+    "build": "tsc",
+    "postversion": "git push && npm publish",
+    "pretest": "npm run build",
+    "test": "mocha tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:hkeio/pouchdb-activerecord.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "homepage": "https://github.org/hkeio/pouchdb-activerecotd#readme",
+  "devDependencies": {
+    "@types/node": "^7.0.31",
+    "@types/pouchdb": "^6.3.1",
+    "@types/pouchdb-find": "^6.3.0",
+    "mocha": "^3.4.2",
+    "tslib": "^1.5.0",
+    "typedoc": "^0.7.1",
+    "typescript": "^2.3.4"
+  },
+  "dependencies": {
+    "lodash": "^4.17.4",
+    "pouchdb": "^6.3.4",
+    "pouchdb-adapter-memory": "^6.3.4",
+    "pouchdb-find": "^6.3.4"
+  }
+}
