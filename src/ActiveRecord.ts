@@ -33,7 +33,7 @@ export class ActiveRecord extends Model {
     this._class._pouch = new PouchDb(this.className, this._config);
   }
 
-  get id() {
+  get id(): string {
     return this.getAttribute('_id');
   }
 
@@ -41,11 +41,11 @@ export class ActiveRecord extends Model {
     this.setAttribute('_id', value);
   }
 
-  get isNewRecord() {
+  get isNewRecord(): boolean {
     return !this.id;
   }
 
-  public save() {
+  public save(): Promise<this> {
     return this._class._pouch.post(this.attributes)
       .then((res) => {
         this.setAttribute('_id', res.id);
@@ -54,7 +54,7 @@ export class ActiveRecord extends Model {
       });
   }
 
-  public static findOne(condition: any = {}) {
+  public static findOne(condition: any = {}): Promise<ActiveRecord> {
     // condition is id
     if (typeof condition === 'string') {
       return this._pouch.get(condition)
@@ -65,7 +65,7 @@ export class ActiveRecord extends Model {
     }
   }
 
-  public static findAll(condition = {}) {
+  public static findAll(condition = {}): Promise<ActiveRecord[]> {
     return this._pouch.find({ selector: condition })
       .then((res) => Promise.resolve(res.docs.map((doc) => new this(doc))));
   }

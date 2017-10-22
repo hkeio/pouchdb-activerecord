@@ -15,11 +15,11 @@ export class Model {
     }
   }
 
-  public get className() {
+  public get className(): string {
     return this._class.name;
   }
 
-  private _initAttributes() {
+  private _initAttributes(): void {
     let keys = Object.keys(this._class._attributes);
     for (var i = 0, l = keys.length; i < l; i++) {
       let key = keys[i];
@@ -33,7 +33,7 @@ export class Model {
     }
   }
 
-  public setAttributes(values) {
+  public setAttributes(values): void {
     let keys = Object.keys(values);
     for (var i = 0, l = keys.length; i < l; i++) {
       this._values[keys[i]] = values[keys[i]];
@@ -44,15 +44,15 @@ export class Model {
     this.setAttributes(values);
   }
 
-  public get attributes() {
+  public get attributes(): any {
     return this._values;
   }
 
-  public setAttribute(attribute: string, value) {
+  public setAttribute(attribute: string, value): void {
     this._values[attribute] = value;
   }
 
-  public getAttribute(attribute: string) {
+  public getAttribute(attribute: string): any {
     return this._values[attribute];
   }
 }
