@@ -7,11 +7,6 @@ describe('Foo', function () {
   it('should not fail', function (next) {
     let id1, id2;
 
-    Foo.findAll()
-      .then((asd) => {
-        console.log(asd);
-      })
-
     let model = new Foo({ foo: 'bar', goo: 1 });
     assert.equal(model instanceof Foo, true, '#1.1');
     assert.equal(model.className, 'Foo', '#1.2');

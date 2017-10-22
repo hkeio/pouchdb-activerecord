@@ -24,13 +24,23 @@ export class ActiveRecord extends Model {
   public _id: string;
   public _rev: string;
 
-  private _config: ActiveRecordConfig;
+  protected static _config: ActiveRecordConfig = {};
   private static _pouch: PouchDbInstance;
+  private static _initialized: boolean = false;
 
-  constructor(values?, config?: ActiveRecordConfig) {
+  constructor(values?) {
     super(values, { _id: { type: 'string' }, _rev: { type: 'string' } });
-    this._config = _.merge({}, config);
-    this._class._pouch = new PouchDb(this.className, this._config);
+    if (!this._class._initialized) {
+      this._class._init();
+    }
+  }
+
+  public static set config(config) {
+    this._config = _.merge(this._config, config);
+  }
+
+  private static _init() {
+    this._pouch = new PouchDb(this.className, this._config);
   }
 
   get id(): string {
@@ -55,6 +65,10 @@ export class ActiveRecord extends Model {
   }
 
   public static findOne(condition: any = {}): Promise<ActiveRecord> {
+    if (!this._initialized) {
+      this._init();
+    }
+
     // condition is id
     if (typeof condition === 'string') {
       return this._pouch.get(condition)
@@ -66,6 +80,9 @@ export class ActiveRecord extends Model {
   }
 
   public static findAll(condition = {}): Promise<ActiveRecord[]> {
+    if (!this._initialized) {
+      this._init();
+    }
     return this._pouch.find({ selector: condition })
       .then((res) => Promise.resolve(res.docs.map((doc) => new this(doc))));
   }

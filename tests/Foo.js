@@ -11,14 +11,10 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var index_1 = require("./../index");
-var _ = require("lodash");
 var Foo = /** @class */ (function (_super) {
     __extends(Foo, _super);
-    function Foo(values, config) {
-        var _this = this;
-        config = _.merge(config, { adapter: 'memory' });
-        _this = _super.call(this, values, config) || this;
-        return _this;
+    function Foo(values) {
+        return _super.call(this, values) || this;
     }
     Foo._attributes = {
         foo: {
@@ -27,6 +23,9 @@ var Foo = /** @class */ (function (_super) {
         goo: {
             type: 'number',
         }
+    };
+    Foo._config = {
+        adapter: 'memory'
     };
     return Foo;
 }(index_1.ActiveRecord));

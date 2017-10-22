@@ -15,8 +15,11 @@ export class Foo extends ActiveRecord {
     }
   };
 
-  constructor(values?, config?: ActiveRecordConfig) {
-    config = _.merge(config, { adapter: 'memory' });
-    super(values, config);
+  protected static _config: ActiveRecordConfig = {
+    adapter: 'memory'
+  };
+
+  constructor(values?) {
+    super(values);
   }
 }

@@ -11,6 +11,8 @@ describe('Model', function () {
     assert.equal(typeof model.setAttributes, 'function');
     assert.equal(typeof model.getAttribute, 'function');
     assert.equal(JSON.stringify(model.attributes), '{}');
+    assert.equal(model.className, 'Model');
+    assert.equal(Model.className, 'Model');
   });
 
 });

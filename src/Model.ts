@@ -15,6 +15,10 @@ export class Model {
     }
   }
 
+  public static get className(): string {
+    return this.name;
+  }
+
   public get className(): string {
     return this._class.name;
   }
