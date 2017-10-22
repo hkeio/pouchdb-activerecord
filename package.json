@@ -14,7 +14,7 @@
   },
   "author": "",
   "license": "ISC",
-  "homepage": "https://github.org/hkeio/pouchdb-activerecotd#readme",
+  "homepage": "https://github.com/hkeio/pouchdb-activerecord#readme",
   "devDependencies": {
     "@types/node": "^7.0.31",
     "@types/pouchdb": "^6.3.1",
