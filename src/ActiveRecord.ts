@@ -1,3 +1,4 @@
+import { ActiveQuery } from './ActiveQuery';
 import { Model } from './Model';
 
 import * as _ from 'lodash';
@@ -35,12 +36,20 @@ export class ActiveRecord extends Model {
     }
   }
 
+  public static get pouch() {
+    if (!this._initialized) {
+      this._init();
+    }
+    return this._pouch;
+  }
+
   public static set config(config) {
     this._config = _.merge(this._config, config);
   }
 
   private static _init() {
     this._pouch = new PouchDb(this.className, this._config);
+    this._initialized = true;
   }
 
   get id(): string {
@@ -64,7 +73,11 @@ export class ActiveRecord extends Model {
       });
   }
 
-  public static findOne(condition: any = {}): Promise<ActiveRecord> {
+  public static find() {
+    return new ActiveQuery(this);
+  }
+
+  public static findOne(condition: any = {}): Promise<typeof ActiveRecord | ActiveRecord> {
     if (!this._initialized) {
       this._init();
     }
@@ -79,7 +92,7 @@ export class ActiveRecord extends Model {
     }
   }
 
-  public static findAll(condition = {}): Promise<ActiveRecord[]> {
+  public static findAll(condition = {}): Promise<typeof ActiveRecord[]> {
     if (!this._initialized) {
       this._init();
     }
