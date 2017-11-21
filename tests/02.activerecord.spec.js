@@ -11,15 +11,6 @@ describe('ActiveRecord', () => {
       plugins: [PouchDBMemory]
     }
 
-    ActiveRecord.defineAttributes({
-      foo: {
-        type: 'string',
-      },
-      goo: {
-        type: 'number',
-      }
-    });
-
     let values = { foo: 'bar', goo: 1 };
     let model = new ActiveRecord(values);
     assert.equal(model instanceof ActiveRecord, true);

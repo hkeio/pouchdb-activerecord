@@ -14,17 +14,19 @@ var index_1 = require("./../index");
 var PouchDBMemory = require("pouchdb-adapter-memory");
 var Foo = /** @class */ (function (_super) {
     __extends(Foo, _super);
-    function Foo(values) {
-        return _super.call(this, values) || this;
+    function Foo() {
+        return _super !== null && _super.apply(this, arguments) || this;
     }
-    Foo._attributes = {
-        foo: {
+    Foo._attributes = [
+        {
+            name: 'foo',
             type: 'string',
         },
-        goo: {
+        {
+            name: 'goo',
             type: 'number',
         }
-    };
+    ];
     Foo._config = {
         adapter: 'memory',
         plugins: [PouchDBMemory]

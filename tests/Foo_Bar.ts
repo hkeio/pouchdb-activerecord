@@ -1,4 +1,4 @@
-import { ActiveRecord, ActiveRecordConfig } from './../index';
+import { ActiveRecord, ActiveRecordConfig, ModelAttribute } from './../index';
 import * as PouchDBMemory from 'pouchdb-adapter-memory';
 
 export class Foo_Bar extends ActiveRecord {
@@ -6,14 +6,16 @@ export class Foo_Bar extends ActiveRecord {
   foo_id: string;
   bar_id: string;
 
-  protected static _attributes = {
-    foo_id: {
+  protected static _attributes: ModelAttribute[] = [
+    {
+      name: 'foo_id',
       type: 'string',
     },
-    bar_id: {
+    {
+      name: 'bar_id',
       type: 'string',
     }
-  };
+  ];
 
   protected static _config: ActiveRecordConfig = {
     adapter: 'memory',

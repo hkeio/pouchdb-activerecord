@@ -26,11 +26,12 @@ describe('Model', function () {
   });
 
   it('should define attributes', () => {
-    Model.defineAttributes({
-      foo: {
+    Model.defineAttributes([
+      {
+        name: 'foo',
         type: 'string'
       }
-    });
+    ]);
 
     let values = { foo: 'bar' };
     model2 = new Model(values);

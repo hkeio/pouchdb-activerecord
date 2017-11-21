@@ -1,14 +1,19 @@
 import * as _ from 'lodash';
 
+export interface ModelAttribute {
+  name: string;
+  type: string;
+}
+
 export class Model {
 
-  protected static _attributes: any = {};
+  protected static _attributes: ModelAttribute[] = [];
   protected _values: any = {};
 
-  protected _class: any = this.constructor;
+  protected _class: any = this.constructor; //@todo: can be removed ?!
 
-  constructor(values?, attributes = {}) {
-    this._class._attributes = _.merge(this._class._attributes, attributes);
+  constructor(values?, attributes: ModelAttribute[] = []) {
+    this._class._attributes = _.unionBy(this._class._attributes, attributes, 'name');
     this._initAttributes();
     if (values) {
       this.attributes = values;
@@ -24,20 +29,17 @@ export class Model {
   }
 
   private _initAttributes(): void {
-    let keys = Object.keys(this._class._attributes);
-    for (var i = 0, l = keys.length; i < l; i++) {
-      let key = keys[i];
-
-      Object.defineProperty(this, key, {
-        get: () => this._values[key],
+    this._class._attributes.forEach((attribute: ModelAttribute) => {
+      Object.defineProperty(this, attribute.name, {
+        get: () => this._values[attribute.name],
         set: (value: any) => {
-          this._values[key] = value;
+          this._values[attribute.name] = value;
         },
       });
-    }
+    });
   }
 
-  public static defineAttributes(attributes) {
+  public static defineAttributes(attributes: ModelAttribute[]) {
     this._attributes = attributes;
   }
 

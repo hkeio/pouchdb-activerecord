@@ -1,5 +1,5 @@
 import { ActiveQuery } from './ActiveQuery';
-import { Model } from './Model';
+import { Model, ModelAttribute } from './Model';
 
 import * as _ from 'lodash';
 import * as PouchDB from 'pouchdb';
@@ -8,10 +8,23 @@ import * as PouchDBFind from 'pouchdb-find';
 let PouchDb = PouchDB
   .plugin(PouchDBFind);
 
+export const ActiveRecordRelationType = {
+  HasOne: 1,
+  HasMany: 2
+};
+
+export interface ActiveRecordRelation {
+  property: string;
+  child: typeof ActiveRecord;
+  parent: typeof ActiveRecord;
+  type: number;
+  relationModel: typeof ActiveRecord;
+}
+
 export interface ActiveRecordConfig {
   adapter?: string;
-  attributes?: any;
   plugins?: any[];
+  relations?: ActiveRecordRelation[];
 }
 
 export interface PouchDbInstance {
@@ -24,12 +37,13 @@ export class ActiveRecord extends Model {
   public _id: string;
   public _rev: string;
 
+  // protected static _attributes: ModelAttribute[] = [{ name: '_id', type: 'string' }, { name: '_rev', type: 'string' }];
   protected static _config: ActiveRecordConfig = { plugins: [] };
   private static _pouch: PouchDbInstance;
   private static _initialized: boolean = false;
 
   constructor(values?) {
-    super(values, { _id: { type: 'string' }, _rev: { type: 'string' } });
+    super(values, [{ name: '_id', type: 'string' }, { name: '_rev', type: 'string' }]);
     this._class._init();
   }
 
