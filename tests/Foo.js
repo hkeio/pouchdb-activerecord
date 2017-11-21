@@ -11,6 +11,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var index_1 = require("./../index");
+var PouchDBMemory = require("pouchdb-adapter-memory");
 var Foo = /** @class */ (function (_super) {
     __extends(Foo, _super);
     function Foo(values) {
@@ -25,7 +26,8 @@ var Foo = /** @class */ (function (_super) {
         }
     };
     Foo._config = {
-        adapter: 'memory'
+        adapter: 'memory',
+        plugins: [PouchDBMemory]
     };
     return Foo;
 }(index_1.ActiveRecord));

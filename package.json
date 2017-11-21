@@ -19,6 +19,7 @@
     "@types/node": "^7.0.31",
     "@types/pouchdb": "^6.3.1",
     "@types/pouchdb-find": "^6.3.0",
+    "pouchdb-adapter-memory": "^6.3.4",
     "mocha": "^3.4.2",
     "tslib": "^1.5.0",
     "typedoc": "^0.7.1",
@@ -27,7 +28,6 @@
   "dependencies": {
     "lodash": "^4.17.4",
     "pouchdb": "^6.3.4",
-    "pouchdb-adapter-memory": "^6.3.4",
     "pouchdb-find": "^6.3.4"
   }
 }

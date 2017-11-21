@@ -1,6 +1,8 @@
 import { ActiveRecord, ActiveRecordConfig } from './../index';
 import * as _ from 'lodash';
 
+import * as PouchDBMemory from 'pouchdb-adapter-memory';
+
 export class Foo extends ActiveRecord {
 
   foo: string;
@@ -16,7 +18,8 @@ export class Foo extends ActiveRecord {
   };
 
   protected static _config: ActiveRecordConfig = {
-    adapter: 'memory'
+    adapter: 'memory',
+    plugins: [PouchDBMemory]
   };
 
   constructor(values?) {

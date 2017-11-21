@@ -4,15 +4,14 @@ import { Model } from './Model';
 import * as _ from 'lodash';
 import * as PouchDB from 'pouchdb';
 import * as PouchDBFind from 'pouchdb-find';
-import * as PouchDBMemory from 'pouchdb-adapter-memory';
 
 let PouchDb = PouchDB
-  .plugin(PouchDBFind)
-  .plugin(PouchDBMemory);
+  .plugin(PouchDBFind);
 
 export interface ActiveRecordConfig {
   adapter?: string;
   attributes?: any;
+  plugins?: any[];
 }
 
 export interface PouchDbInstance {
@@ -25,7 +24,7 @@ export class ActiveRecord extends Model {
   public _id: string;
   public _rev: string;
 
-  protected static _config: ActiveRecordConfig = {};
+  protected static _config: ActiveRecordConfig = { plugins: [] };
   private static _pouch: PouchDbInstance;
   private static _initialized: boolean = false;
 
@@ -48,6 +47,10 @@ export class ActiveRecord extends Model {
   }
 
   private static _init() {
+    this._config.plugins.forEach((plugin) => {
+      PouchDb = PouchDb.plugin(plugin);
+    });
+
     this._pouch = new PouchDb(this.className, this._config);
     this._initialized = true;
   }
