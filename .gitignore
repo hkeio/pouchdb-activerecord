@@ -10,4 +10,4 @@ Thumbs.db
 *.js
 *.map
 *.d.ts
-!tests/*.js
+!*.spec.js
