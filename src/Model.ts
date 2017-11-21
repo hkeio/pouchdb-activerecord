@@ -37,6 +37,10 @@ export class Model {
     }
   }
 
+  public static defineAttributes(attributes) {
+    this._attributes = attributes;
+  }
+
   public setAttributes(values): void {
     let keys = Object.keys(values);
     for (var i = 0, l = keys.length; i < l; i++) {

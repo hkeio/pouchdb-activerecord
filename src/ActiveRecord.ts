@@ -30,15 +30,11 @@ export class ActiveRecord extends Model {
 
   constructor(values?) {
     super(values, { _id: { type: 'string' }, _rev: { type: 'string' } });
-    if (!this._class._initialized) {
-      this._class._init();
-    }
+    this._class._init();
   }
 
   public static get pouch() {
-    if (!this._initialized) {
-      this._init();
-    }
+    this._init();
     return this._pouch;
   }
 
@@ -47,12 +43,39 @@ export class ActiveRecord extends Model {
   }
 
   private static _init() {
+    if (this._initialized) {
+      return;
+    }
+
     this._config.plugins.forEach((plugin) => {
       PouchDb = PouchDb.plugin(plugin);
     });
 
-    this._pouch = new PouchDb(this.className, this._config);
+    this._pouch = new PouchDb('.db_' + this.className, this._config);
     this._initialized = true;
+  }
+
+  public static find() {
+    return new ActiveQuery(this);
+  }
+
+  public static findOne(condition: any = {}): Promise<typeof ActiveRecord | ActiveRecord> {
+    this._init();
+
+    // condition is id
+    if (typeof condition === 'string') {
+      return this._pouch.get(condition)
+        .then((res) => Promise.resolve(new this(res)));
+    } else {
+      return this._pouch.find({ selector: condition })
+        .then((res) => Promise.resolve(new this(res.docs[0])));
+    }
+  }
+
+  public static findAll(condition = {}): Promise<typeof ActiveRecord[]> {
+    this._init();
+    return this._pouch.find({ selector: condition })
+      .then((res) => Promise.resolve(res.docs.map((doc) => new this(doc))));
   }
 
   get id(): string {
@@ -76,30 +99,4 @@ export class ActiveRecord extends Model {
       });
   }
 
-  public static find() {
-    return new ActiveQuery(this);
-  }
-
-  public static findOne(condition: any = {}): Promise<typeof ActiveRecord | ActiveRecord> {
-    if (!this._initialized) {
-      this._init();
-    }
-
-    // condition is id
-    if (typeof condition === 'string') {
-      return this._pouch.get(condition)
-        .then((res) => Promise.resolve(new this(res)));
-    } else {
-      return this._pouch.find({ selector: condition })
-        .then((res) => Promise.resolve(new this(res.docs[0])));
-    }
-  }
-
-  public static findAll(condition = {}): Promise<typeof ActiveRecord[]> {
-    if (!this._initialized) {
-      this._init();
-    }
-    return this._pouch.find({ selector: condition })
-      .then((res) => Promise.resolve(res.docs.map((doc) => new this(doc))));
-  }
 }

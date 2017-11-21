@@ -1,7 +1,5 @@
 import { ActiveRecord } from './ActiveRecord';
 
-import * as _ from 'lodash';
-
 export class ActiveQuery {
 
   private _model: typeof ActiveRecord;
@@ -17,6 +15,9 @@ export class ActiveQuery {
   };
 
   constructor(model: typeof ActiveRecord) {
+    if (!model) {
+      throw new Error('NoModelException');
+    }
     this._pouch = model.pouch;
     this._model = model;
   }
@@ -41,7 +42,7 @@ export class ActiveQuery {
 
   public limit(start = 0, end = null) {
     this._params.limit.start = start;
-    this._params.limit.end = start;
+    this._params.limit.end = end;
     return this;
   }
 
