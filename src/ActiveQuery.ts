@@ -1,9 +1,9 @@
-import { ActiveRecord } from './ActiveRecord';
+import { ActiveRecord, PouchDbInstance } from './ActiveRecord';
 
 export class ActiveQuery {
 
   private _model: typeof ActiveRecord;
-  private _pouch;
+  private _pouch: PouchDbInstance;
   private _params = {
     fields: [],
     limit: {
@@ -18,6 +18,7 @@ export class ActiveQuery {
     if (!model) {
       throw new Error('NoModelException');
     }
+    model.init();
     this._pouch = model.pouch;
     this._model = model;
   }
@@ -65,21 +66,11 @@ export class ActiveQuery {
   public async all() {
     const res = await this._pouch.find({
       selector: this._params.where,
-      fields: this._params.fields,
+      // fields: this._params.fields,
       // sort: this._params.sort,
-      limit: this._params.limit.end,
-      skip: this._params.limit.start
+      // limit: this._params.limit.end,
+      // skip: this._params.limit.start
     });
-
-    // console.log(this._pouch);
-    // console.log({
-    //   selector: this._params.where,
-    //   fields: this._params.fields,
-    //   // sort: this._params.sort,
-    //   limit: this._params.limit.end,
-    //   skip: this._params.limit.start
-    // });
-
     return res.docs.map((doc) => new this._model(doc));
   }
 }

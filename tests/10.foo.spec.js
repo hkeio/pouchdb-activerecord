@@ -93,12 +93,13 @@ describe('Foo', () => {
 
   it('model.foo should have length 1', (done) => {
     let child = new FooChild({ foo_id: model.id });
-    // console.log(Foo.pouch);
-    // console.log(model.id);
     child.save()
-      .then((asd) => {
-        // console.log(asd);
-        // console.log(FooChild.pouch);
+      .then((saved) => {
+        assert.equal(JSON.stringify(saved), JSON.stringify(child));
+        return FooChild.findAll()
+      })
+      .then((children) => {
+        assert.equal(JSON.stringify(children[0]), JSON.stringify(child));
         return model.fooChild.all()
       })
       .then((children) => {

@@ -40,18 +40,18 @@ export class ActiveRecord extends Model {
 
   protected static _config: ActiveRecordConfig = { plugins: [] };
   protected static _relations: ActiveRecordRelation[] = [];
-  private static _pouch: PouchDbInstance;
-  private static _initialized: boolean = false;
+  private static _pouch: { [model: string]: PouchDbInstance; } = {};
+  private static _initialized: { [model: string]: boolean; } = {};
 
   constructor(values?) {
     super(values, [{ name: '_id', type: 'string' }, { name: '_rev', type: 'string' }]);
-    this._class._init();
+    this._class.init();
     this._initRelations();
   }
 
   public static get pouch() {
-    this._init();
-    return this._pouch;
+    this.init();
+    return this._pouch[this.className];
   }
 
   public static set config(config) {
@@ -69,7 +69,7 @@ export class ActiveRecord extends Model {
               condition[relation.property] = this.id;
               // console.log('jlasjdklajskld', );
               return new ActiveQuery(relation.child)
-                .where(condition);
+              // .where(condition);
             },
             // set: (value: any) => {
             //   this._values[attribute.name] = value;
@@ -80,9 +80,8 @@ export class ActiveRecord extends Model {
     });
   }
 
-  private static _init() {
-    console.log(this.className, this._initialized);
-    if (this._initialized) {
+  public static init() {
+    if (this._initialized[this.className]) {
       return;
     }
 
@@ -90,8 +89,8 @@ export class ActiveRecord extends Model {
       PouchDb = PouchDb.plugin(plugin);
     });
 
-    this._pouch = new PouchDb('.db_' + this.className, this._config);
-    this._initialized = true;
+    this._pouch[this.className] = new PouchDb('.db_' + this.className, this._config);
+    this._initialized[this.className] = true;
   }
 
   public static find() {
@@ -99,21 +98,21 @@ export class ActiveRecord extends Model {
   }
 
   public static findOne(condition: any = {}): Promise<typeof ActiveRecord | ActiveRecord> {
-    this._init();
+    this.init();
 
     // condition is id
     if (typeof condition === 'string') {
-      return this._pouch.get(condition)
+      return this.pouch.get(condition)
         .then((res) => Promise.resolve(new this(res)));
     } else {
-      return this._pouch.find({ selector: condition })
+      return this.pouch.find({ selector: condition })
         .then((res) => Promise.resolve(new this(res.docs[0])));
     }
   }
 
   public static findAll(condition = {}): Promise<typeof ActiveRecord[]> {
-    this._init();
-    return this._pouch.find({ selector: condition })
+    this.init();
+    return this.pouch.find({ selector: condition })
       .then((res) => Promise.resolve(res.docs.map((doc) => new this(doc))));
   }
 
@@ -130,7 +129,7 @@ export class ActiveRecord extends Model {
   }
 
   public save(): Promise<this> {
-    return this._class._pouch.post(this.attributes)
+    return this._class._pouch[this.className].post(this.attributes)
       .then((res) => {
         this.setAttribute('_id', res.id);
         this.setAttribute('_rev', res.rev);

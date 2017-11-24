@@ -15,7 +15,7 @@ describe('ActiveQuery', () => {
 
   it('should be instance of ActiveRecord', () => {
     let foo = new Foo();
-    let model = new ActiveQuery(foo);
+    let model = new ActiveQuery(Foo);
     assert.equal(model instanceof ActiveQuery, true);
     assert.equal(typeof model.fields, 'function');
     assert.equal(typeof model.sort, 'function');
