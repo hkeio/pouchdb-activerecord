@@ -1,5 +1,7 @@
 let Foo = require('./Foo').Foo;
 let ActiveQuery = require('./../').ActiveQuery;
+let FooChild = require('./FooChild').FooChild;
+
 let assert = require('assert');
 let _ = require('lodash');
 
@@ -79,6 +81,31 @@ describe('Foo', () => {
     //   assert.equal(models[0].foo, 'baz');
     done();
     // });
+  });
+
+  it('model.foo should have length 0', (done) => {
+    model.fooChild.all()
+      .then((children) => {
+        assert.equal(children.length, 0);
+        done();
+      });
+  });
+
+  it('model.foo should have length 1', (done) => {
+    let child = new FooChild({ foo_id: model.id });
+    // console.log(Foo.pouch);
+    // console.log(model.id);
+    child.save()
+      .then((asd) => {
+        // console.log(asd);
+        // console.log(FooChild.pouch);
+        return model.fooChild.all()
+      })
+      .then((children) => {
+        assert.equal(children.length, 1);
+        assert.equal(children[0].id, child.id);
+        done();
+      });
   });
 
 });

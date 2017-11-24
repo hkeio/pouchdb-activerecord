@@ -51,25 +51,35 @@ export class ActiveQuery {
     return this;
   }
 
-  public one() {
-    return this._pouch.find({
+  public async one() {
+    const res = await this._pouch.find({
       selector: this._params.where,
-      fields: this._params.sort,
-      sort: this._params.sort,
+      fields: this._params.fields,
+      // sort: this._params.sort,
       limit: this._params.limit.end,
       skip: this._params.limit.start
-    })
-      .then((res) => Promise.resolve(new this._model(res.docs[0])));
+    });
+    return new this._model(res.docs[0]);
   }
 
-  public all() {
-    return this._pouch.find({
+  public async all() {
+    const res = await this._pouch.find({
       selector: this._params.where,
-      fields: this._params.sort,
-      sort: this._params.sort,
+      fields: this._params.fields,
+      // sort: this._params.sort,
       limit: this._params.limit.end,
       skip: this._params.limit.start
-    })
-      .then((res) => Promise.resolve(res.docs.map((doc) => new this._model(doc))));
+    });
+
+    // console.log(this._pouch);
+    // console.log({
+    //   selector: this._params.where,
+    //   fields: this._params.fields,
+    //   // sort: this._params.sort,
+    //   limit: this._params.limit.end,
+    //   skip: this._params.limit.start
+    // });
+
+    return res.docs.map((doc) => new this._model(doc));
   }
 }

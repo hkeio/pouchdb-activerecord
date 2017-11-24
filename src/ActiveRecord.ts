@@ -10,21 +10,22 @@ let PouchDb = PouchDB
 
 export const ActiveRecordRelationType = {
   HasOne: 1,
-  HasMany: 2
+  HasMany: 2,
+  ManyToMany: 3
 };
 
 export interface ActiveRecordRelation {
-  property: string;
   child: typeof ActiveRecord;
-  parent: typeof ActiveRecord;
+  // parent: typeof ActiveRecord;
+  name: string;
+  property?: string;
+  relationModel?: typeof ActiveRecord;
   type: number;
-  relationModel: typeof ActiveRecord;
 }
 
 export interface ActiveRecordConfig {
   adapter?: string;
   plugins?: any[];
-  relations?: ActiveRecordRelation[];
 }
 
 export interface PouchDbInstance {
@@ -37,14 +38,15 @@ export class ActiveRecord extends Model {
   public _id: string;
   public _rev: string;
 
-  // protected static _attributes: ModelAttribute[] = [{ name: '_id', type: 'string' }, { name: '_rev', type: 'string' }];
   protected static _config: ActiveRecordConfig = { plugins: [] };
+  protected static _relations: ActiveRecordRelation[] = [];
   private static _pouch: PouchDbInstance;
   private static _initialized: boolean = false;
 
   constructor(values?) {
     super(values, [{ name: '_id', type: 'string' }, { name: '_rev', type: 'string' }]);
     this._class._init();
+    this._initRelations();
   }
 
   public static get pouch() {
@@ -56,7 +58,30 @@ export class ActiveRecord extends Model {
     this._config = _.merge(this._config, config);
   }
 
+  private _initRelations() {
+    this._class._relations.forEach((relation: ActiveRecordRelation) => {
+      switch (relation.type) {
+        case ActiveRecordRelationType.HasOne:
+          // console.log(relation);
+          Object.defineProperty(this, relation.name, {
+            get: () => {
+              let condition = {};
+              condition[relation.property] = this.id;
+              // console.log('jlasjdklajskld', );
+              return new ActiveQuery(relation.child)
+                .where(condition);
+            },
+            // set: (value: any) => {
+            //   this._values[attribute.name] = value;
+            // },
+          });
+          break;
+      }
+    });
+  }
+
   private static _init() {
+    console.log(this.className, this._initialized);
     if (this._initialized) {
       return;
     }
