@@ -5,19 +5,19 @@ import {
   ActiveRecordRelation
 } from './../index';
 
-import * as _ from 'lodash';
 import * as PouchDBMemory from 'pouchdb-adapter-memory';
 
 import { Bar } from './Bar';
 import { Foo_Bar } from './Foo_Bar';
 import { FooChild } from './FooChild';
 
-// console.log(HasOne);
-
 export class Foo extends ActiveRecord {
 
   foo: string;
   goo: number;
+
+  bars: Bar[];
+  fooChild: FooChild;
 
   protected static _attributes: ModelAttribute[] = [
     new ModelAttribute('foo'),

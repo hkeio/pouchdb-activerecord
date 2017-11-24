@@ -23,7 +23,7 @@ export class ActiveQuery {
     this._model = model;
   }
 
-  public fields(param: string | string[]) {
+  public fields(param: string[]) {
     let fields: any = param;
     if (param.constructor.name === 'string') {
       fields = [param];
@@ -32,7 +32,7 @@ export class ActiveQuery {
     return this;
   }
 
-  public sort(param: string | string[]) {
+  public sort(param: string[]) {
     let sort: any = param;
     if (param.constructor.name === 'string') {
       sort = [param];
