@@ -85,6 +85,7 @@ export class ActiveRecord extends Model {
   /* Querying methods */
 
   public static find() {
+    this.init();
     return new ActiveQuery(this);
   }
 
@@ -93,22 +94,22 @@ export class ActiveRecord extends Model {
 
     // condition is id
     if (typeof condition === 'string') {
-      const res = await this.pouch.get(condition);
-      return new this(res);
+      return new this(await this.pouch.get(condition));
     }
 
-    const res = await this.pouch.find({ selector: condition });
-    return new this(res.docs[0]);
+    return await this.find()
+      .where(condition)
+      .one();
   }
 
   public static async findAll(condition = {}): Promise<typeof ActiveRecord[]> {
-    this.init();
-    const res = await this.pouch.find({ selector: condition });
-    return res.docs.map((doc) => new this(doc));
+    return await this.find()
+      .where(condition)
+      .all();
   }
 
   public async save(): Promise<this> {
-    const res = await this._class._pouch[this.className].post(this.attributes);
+    const res = await this._class.pouch.post(this.attributes);
     this.setAttribute('_id', res.id);
     this.setAttribute('_rev', res.rev);
     return this;
