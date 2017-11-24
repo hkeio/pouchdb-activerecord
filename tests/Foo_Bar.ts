@@ -1,6 +1,5 @@
-import { ActiveRecord, ActiveRecordConfig, ModelAttribute } from './../index';
+import { ActiveRecord, ActiveRecordConfig, ModelAttribute, ActiveRecordRelationModel } from './../index';
 import * as PouchDBMemory from 'pouchdb-adapter-memory';
-import { ActiveRecordRelationModel } from '../src/ActiveRecordRelationModel';
 
 export class Foo_Bar extends ActiveRecordRelationModel {
 

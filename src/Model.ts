@@ -1,8 +1,22 @@
 import * as _ from 'lodash';
 
-export interface ModelAttribute {
+export class ModelAttribute {
   name: string;
   type: string;
+
+  constructor(name, type: string = 'string') {
+    this.name = name;
+    this.type = type;
+  }
+
+  init(model: Model) {
+    Object.defineProperty(model, this.name, {
+      get: () => model.getAttribute(this.name),
+      set: (value: any) => {
+        model.setAttribute(this.name, value);
+      },
+    });
+  }
 }
 
 export class Model {
@@ -29,14 +43,7 @@ export class Model {
   }
 
   private _initAttributes(): void {
-    this._class._attributes.forEach((attribute: ModelAttribute) => {
-      Object.defineProperty(this, attribute.name, {
-        get: () => this._values[attribute.name],
-        set: (value: any) => {
-          this._values[attribute.name] = value;
-        },
-      });
-    });
+    this._class._attributes.forEach((attribute: ModelAttribute) => attribute.init(this));
   }
 
   public static defineAttributes(attributes: ModelAttribute[]) {

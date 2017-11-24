@@ -1,4 +1,5 @@
 let Model = require('./../').Model;
+let ModelAttribute = require('./../').ModelAttribute;
 let assert = require('assert');
 
 describe('Model', function () {
@@ -27,10 +28,7 @@ describe('Model', function () {
 
   it('should define attributes', () => {
     Model.defineAttributes([
-      {
-        name: 'foo',
-        type: 'string'
-      }
+      new ModelAttribute('foo')
     ]);
 
     let values = { foo: 'bar' };

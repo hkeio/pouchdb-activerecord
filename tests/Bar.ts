@@ -6,10 +6,7 @@ export class Bar extends ActiveRecord {
   boo: string;
 
   protected static _attributes: ModelAttribute[] = [
-    {
-      name: 'boo',
-      type: 'string',
-    }
+    new ModelAttribute('boo')
   ];
 
   protected static _config: ActiveRecordConfig = {

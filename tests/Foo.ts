@@ -1,10 +1,19 @@
-import { ActiveRecord, ActiveRecordConfig, ActiveRecordRelation, ModelAttribute, ActiveRecordRelationType } from './../index';
-import * as _ from 'lodash';
+import {
+  ActiveRecord,
+  ActiveRecordConfig,
+  ModelAttribute,
+  ActiveRecordRelation,
+  ActiveRecordRelationType
+} from './../index';
 
+import * as _ from 'lodash';
 import * as PouchDBMemory from 'pouchdb-adapter-memory';
+
 import { Bar } from './Bar';
 import { Foo_Bar } from './Foo_Bar';
 import { FooChild } from './FooChild';
+
+// console.log(HasOne);
 
 export class Foo extends ActiveRecord {
 
@@ -12,29 +21,13 @@ export class Foo extends ActiveRecord {
   goo: number;
 
   protected static _attributes: ModelAttribute[] = [
-    {
-      name: 'foo',
-      type: 'string',
-    },
-    {
-      name: 'goo',
-      type: 'number',
-    }
+    new ModelAttribute('foo'),
+    new ModelAttribute('goo'),
   ];
 
-  protected static _relations: ActiveRecordRelation[] = [
-    {
-      child: Bar,
-      type: ActiveRecordRelationType.ManyToMany,
-      name: 'bars',
-      relationModel: Foo_Bar
-    },
-    {
-      child: FooChild,
-      type: ActiveRecordRelationType.HasOne,
-      name: 'fooChild',
-      property: 'foo_id'
-    }
+  protected static _relations: any[] = [
+    ActiveRecordRelation.hasMany('bars', Bar, Foo_Bar),
+    ActiveRecordRelation.hasOne('fooChild', FooChild, 'foo_id')
   ];
 
   protected static _config: ActiveRecordConfig = {

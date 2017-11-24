@@ -6,10 +6,7 @@ export class FooChild extends ActiveRecord {
   foo_id: string;
 
   protected static _attributes: ModelAttribute[] = [
-    {
-      name: 'foo_id',
-      type: 'string',
-    }
+    new ModelAttribute('foo_id')
   ];
 
   protected static _config: ActiveRecordConfig = {

@@ -76,22 +76,18 @@ describe('Foo', () => {
   it('find() should return ActiveQuery', (done) => {
     let query = Foo.find();
     assert.equal(query instanceof ActiveQuery, true);
-    // .then((models) => {
-    //   assert.equal(models.length, 1);
-    //   assert.equal(models[0].foo, 'baz');
     done();
-    // });
   });
 
-  it('model.foo should have length 0', (done) => {
-    model.fooChild.all()
+  it('model.fooChild should have length 0', (done) => {
+    model.fooChild
       .then((children) => {
         assert.equal(children.length, 0);
         done();
       });
   });
 
-  it('model.foo should have length 1', (done) => {
+  it('model.fooChild should have length 1', (done) => {
     let child = new FooChild({ foo_id: model.id });
     child.save()
       .then((saved) => {
@@ -100,7 +96,7 @@ describe('Foo', () => {
       })
       .then((children) => {
         assert.equal(JSON.stringify(children[0]), JSON.stringify(child));
-        return model.fooChild.all()
+        return model.fooChild
       })
       .then((children) => {
         assert.equal(children.length, 1);
