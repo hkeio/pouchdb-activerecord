@@ -1,5 +1,6 @@
 import { ActiveQuery } from './ActiveQuery';
 import { Model, ModelAttribute } from './Model';
+import { ActiveRecordRelation } from './ActiveRecordRelation';
 
 import * as _ from 'lodash';
 import * as PouchDB from 'pouchdb';
@@ -24,7 +25,7 @@ export class ActiveRecord extends Model {
   public _rev: string;
 
   protected static _config: ActiveRecordConfig = { plugins: [] };
-  protected static _relations: any[] = [];
+  protected static _relations: ActiveRecordRelation[] = [];
   private static _pouch: { [model: string]: PouchDbInstance; } = {};
   private static _initialized: { [model: string]: boolean; } = {};
 
@@ -112,16 +113,4 @@ export class ActiveRecord extends Model {
     this.setAttribute('_rev', res.rev);
     return this;
   }
-}
-
-export class ActiveRecordRelationModel extends ActiveRecord {
-
-  child_id: string;
-  parent_id: string;
-
-  protected static _attributes: ModelAttribute[] = [
-    new ModelAttribute('child_id'),
-    new ModelAttribute('parent_id')
-  ];
-
 }

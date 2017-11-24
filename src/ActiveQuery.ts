@@ -53,14 +53,21 @@ export class ActiveQuery {
   }
 
   public async one() {
-    const res = await this._pouch.find({
+    let query = {
+      fields: null,
+      limit: 1,
       selector: this._params.where,
-      fields: this._params.fields,
-      // sort: this._params.sort,
-      limit: this._params.limit.end,
-      skip: this._params.limit.start
-    });
-    return new this._model(res.docs[0]);
+      sort: null,
+      skip: 0
+    };
+    if (this._params.fields.length) {
+      query.fields = this._params.fields;
+    }
+    if (this._params.sort.length) {
+      query.sort = this._params.sort;
+    }
+    const res = await this._pouch.find(query);
+    return res.docs.length ? new this._model(res.docs[0]) : null;
   }
 
   public async all() {

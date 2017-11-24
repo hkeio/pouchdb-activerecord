@@ -2,8 +2,7 @@ import {
   ActiveRecord,
   ActiveRecordConfig,
   ModelAttribute,
-  ActiveRecordRelation,
-  ActiveRecordRelationType
+  ActiveRecordRelation
 } from './../index';
 
 import * as _ from 'lodash';
@@ -25,8 +24,8 @@ export class Foo extends ActiveRecord {
     new ModelAttribute('goo'),
   ];
 
-  protected static _relations: any[] = [
-    ActiveRecordRelation.hasMany('bars', Bar, Foo_Bar),
+  protected static _relations: ActiveRecordRelation[] = [
+    ActiveRecordRelation.manyToMany('bars', Bar, Foo_Bar, 'foo_id', 'bar_id'),
     ActiveRecordRelation.hasOne('fooChild', FooChild, 'foo_id')
   ];
 
