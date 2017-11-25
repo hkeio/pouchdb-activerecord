@@ -2,7 +2,6 @@ import { ActiveQuery } from './ActiveQuery';
 import { Model, ModelAttribute } from './Model';
 import { ActiveRecordRelation } from './ActiveRecordRelation';
 
-import * as _ from 'lodash';
 import * as PouchDB from 'pouchdb';
 import * as PouchDBFind from 'pouchdb-find';
 
