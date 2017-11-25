@@ -47,7 +47,9 @@ export class ActiveRecord extends Model {
   }
 
   public static set config(config) {
-    this._config = _.merge(this._config, config);
+    Object.keys(config).forEach((key) => {
+      this._config[key] = config[key];
+    });
   }
 
   public static init() {
