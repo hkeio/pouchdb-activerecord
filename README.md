@@ -43,8 +43,8 @@ console.log(model.isNewRecord); // false
 console.log(model.id); // uuid
 
 // relations
-mode.bars // return Promise<Bar[]>
-mode.fooChild // return Promise<FooChild>
+model.bars // return Promise<Bar[]>
+model.fooChild // return Promise<FooChild>
 ```
 
 ### ActiveRecord
