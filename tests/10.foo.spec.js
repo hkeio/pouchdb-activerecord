@@ -104,29 +104,15 @@ describe('Foo', () => {
       });
   });
 
-  it('model.bars should not be 2', (done) => {
-    let bar1 = new Bar({ boo: 'aaa' });
-    let bar2 = new Bar({ boo: 'bbb' });
-    let bar3 = new Bar({ boo: 'ccc' });
-
-    let relation1, relation2, relation3;
-
-    bar1.save()
-      .then(() => bar2.save())
-      .then(() => bar3.save())
-      .then(() => {
-
-        relation1 = new Foo_Bar({ foo_id: model.id, bar_id: bar1.id });
-        relation2 = new Foo_Bar({ foo_id: model.id, bar_id: bar2.id });
-        relation3 = new Foo_Bar({ foo_id: model2.id, bar_id: bar3.id });
-
-        return relation1.save();
-      })
-      .then(() => relation2.save())
-      .then(() => relation3.save())
+  it('model.bars should not be 4', (done) => {
+    let bar = new Bar({ boo: 'ddd' });
+    bar.save()
+      .then(() => model.addBars({ boo: 'aaa' }))
+      .then(() => model.addBars(new Bar({ boo: 'bbb' })))
+      .then(() => model.addBars([{ boo: 'ccc' }, bar]))
       .then(() => model.bars)
       .then((res) => {
-        assert.equal(res.length, 2);
+        assert.equal(res.length, 4);
         assert.equal(res[0] instanceof Bar, true);
         done();
       });

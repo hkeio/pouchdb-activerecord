@@ -1,6 +1,7 @@
 import { ActiveQuery } from './ActiveQuery';
 import { Model, ModelAttribute } from './Model';
 import { ActiveRecord } from './ActiveRecord';
+import { setTimeout } from 'timers';
 
 const ActiveRecordRelationType = {
   HasOne: 1,
@@ -78,7 +79,7 @@ export class ActiveRecordRelation extends Model {
       });
 
     } else if (this._type === ActiveRecordRelationType.ManyToMany) {
-
+      let capitalizedLabel = this._label[0].toUpperCase() + this._label.slice(1);
       Object.defineProperty(model, this._label, {
         get: async () => {
           condition[this._key] = model.id;
@@ -91,9 +92,35 @@ export class ActiveRecordRelation extends Model {
           }
           const ids = res.docs.map((doc) => doc[this._foreignKey]);
           return new ActiveQuery(this._child).where({ _id: { $in: ids } }).all();
-        },
+        }
       });
 
+      model['add' + capitalizedLabel] = async (objects) => {
+        if (!Array.isArray(objects)) {
+          objects = [objects];
+        }
+        if (!objects.length) {
+          return;
+        }
+
+        // make all objects a instance of foreign class
+        objects = objects.map((object) => object instanceof this._child ? object : new this._child(object));
+        for (let object of objects) {
+          await object.save();
+        }
+
+        let condition = {};
+        condition[this._foreignKey] = { $in: objects.map((object) => object.id) };
+        const existing = await this._intermediate.findAll(condition);
+
+        for (let object of objects) {
+          let data = {};
+          data[this._key] = model.id;
+          data[this._foreignKey] = object.id;
+          let relation = new this._intermediate(data);
+          await relation.save();
+        }
+      }
     }
   }
 }
