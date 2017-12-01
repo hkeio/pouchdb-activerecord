@@ -94,12 +94,21 @@ export class ActiveRecordRelation extends Model {
   }
 
   private _initHasOne(model, condition) {
+    // add property to class
+    this._child.addAttributes([new ModelAttribute(model[this._property], 'string')]);
+
     Object.defineProperty(model, this._label.original, {
-      get: () => {
-        condition[this._property] = model.id;
-        return new ActiveQuery(this._child).where(condition).one();
-      },
+      get: () => this._child.findOne(model[this._property]),
     });
+
+    // add `setChild()` method
+    model['set' + this._label.capitalizedSingular] = async (object: any) => {
+      if (!(object instanceof this._child)) {
+        object = new this._child(object);
+      }
+      await object.save();
+      model[this._property] = object.id;
+    }
   }
 
   private _initHasMany(model, condition) {
@@ -107,7 +116,7 @@ export class ActiveRecordRelation extends Model {
     this._child.addAttributes([new ModelAttribute(this._property, 'foreignKey')]);
 
     // set getter `child` property
-    Object.defineProperty(model, this._label.original, {
+    Object.defineProperty(model, this._label.plural, {
       get: async () => {
         condition[this._property] = model.id;
         return await new ActiveQuery(this._child).where(condition).all();

@@ -1,5 +1,7 @@
-let Foo = require('./Foo').Foo;
+
 let Bar = require('./Bar').Bar;
+let Boo = require('./Boo').Boo;
+let Foo = require('./Foo').Foo;
 let Foo_Bar = require('./Foo_Bar').Foo_Bar;
 let ActiveQuery = require('./../').ActiveQuery;
 let FooChild = require('./FooChild').FooChild;
@@ -7,8 +9,6 @@ let FooChild = require('./FooChild').FooChild;
 let assert = require('assert');
 let _ = require('lodash');
 let PouchDBMemory = require('pouchdb-adapter-memory');
-
-console.log(PouchDBMemory);
 
 describe('Foo', () => {
 
@@ -86,18 +86,18 @@ describe('Foo', () => {
     done();
   });
 
-  it('model.fooChild should be 0', (done) => {
-    model.fooChildren
+  it('model.fooChildrens should be 0', (done) => {
+    model.fooChildrens
       .then((res) => {
         assert.equal(res.length, 0);
         done();
       });
   });
 
-  it('model.fooChild should be 1', (done) => {
+  it('model.fooChildrens should be 1', (done) => {
     let child = new FooChild();
     model.addFooChildren(child)
-      .then(() => model.fooChildren)
+      .then(() => model.fooChildrens)
       .then((res) => {
         assert.equal(res.length, 1);
         assert.equal(JSON.stringify(res[0]), JSON.stringify(child));
@@ -132,6 +132,27 @@ describe('Foo', () => {
       .then((query) => {
         assert.equal(query.params.where._id.$in.length, 4);
         assert.equal(query instanceof ActiveQuery, true);
+        done();
+      });
+  });
+
+  it('model.boo and model.boo_id should be null', (done) => {
+    model.boo
+      .then((res) => {
+        assert.equal(res, null);
+        assert.equal(model.boo_id, null);
+        done();
+      });
+  });
+
+  it('model.boo and model.boo_id should be set', (done) => {
+    let boo = new Boo();
+    model.setBoo(boo)
+      .then(() => model.boo)
+      .then((res) => {
+        assert.equal(res instanceof Boo, true);
+        assert.equal(JSON.stringify(res), JSON.stringify(boo));
+        assert.equal(model.boo_id, boo.id);
         done();
       });
   });

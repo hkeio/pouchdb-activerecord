@@ -1,7 +1,3 @@
-import {
-  ActiveRecord,
-  ActiveRecordConfig,
-  ModelAttribute
-} from './../index';
+import { ActiveRecord } from './../index';
 
 export class FooChild extends ActiveRecord { }
