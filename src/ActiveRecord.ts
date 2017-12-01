@@ -115,4 +115,13 @@ export class ActiveRecord extends Model {
     this.setAttribute('_rev', res.rev);
     return this;
   }
+
+  public static async save(objects: any[]) {
+    for (let i in objects) {
+      if (!(objects[i] instanceof this)) {
+        objects[i] = new this(objects[i]);
+      }
+      await objects[i].save();
+    }
+  }
 }

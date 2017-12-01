@@ -25,18 +25,18 @@ export class Model {
   protected _class: any = this.constructor; //@todo: can be removed ?!
 
   constructor(values?, attributes: ModelAttribute[] = []) {
-    this._mergeAttributes(attributes);
+    this._class.addAttributes(attributes);
     this._initAttributes();
     if (values) {
       this.attributes = values;
     }
   }
 
-  private _mergeAttributes(attributes) {
+  public static addAttributes(attributes: ModelAttribute[]) {
     attributes.forEach((attribute: ModelAttribute) => {
       let found = false,
         index = null;
-      this._class._attributes.forEach((attr: ModelAttribute, i) => {
+      this._attributes.forEach((attr: ModelAttribute, i) => {
         if (attribute.name === attr.name) {
           index = i;
           found = true;
@@ -44,9 +44,9 @@ export class Model {
       });
 
       if (found) {
-        this._class._attributes[index] = attribute;
+        this._attributes[index] = attribute;
       } else {
-        this._class._attributes.push(attribute);
+        this._attributes.push(attribute);
       }
     });
   }

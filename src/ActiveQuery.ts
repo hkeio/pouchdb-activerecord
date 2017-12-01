@@ -23,6 +23,10 @@ export class ActiveQuery {
     this._model = model;
   }
 
+  public get params() {
+    return this._params;
+  }
+
   public fields(param: string[]) {
     let fields: any = param;
     if (param.constructor.name === 'string') {

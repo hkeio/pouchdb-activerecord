@@ -1,7 +1,6 @@
 import { ActiveQuery } from './ActiveQuery';
 import { Model, ModelAttribute } from './Model';
 import { ActiveRecord } from './ActiveRecord';
-import { setTimeout } from 'timers';
 
 const ActiveRecordRelationType = {
   HasOne: 1,
@@ -9,13 +8,21 @@ const ActiveRecordRelationType = {
   ManyToMany: 3
 };
 
+interface Label {
+  original: string;
+  singular: string;
+  plural: string;
+  capitalizedSingular: string;
+  capitalizedPlural: string;
+}
+
 export class ActiveRecordRelation extends Model {
 
   private _child: typeof ActiveRecord;
   private _foreignKey: string;
   private _intermediate: typeof ActiveRecord;
   private _key: string;
-  private _label: string;
+  private _label: Label;
   private _property: string;
   private _type: number;
 
@@ -28,6 +35,23 @@ export class ActiveRecordRelation extends Model {
     new ModelAttribute('_property'),
     new ModelAttribute('_type', 'number'),
   ];
+
+  constructor(values?: any, attributes?: ModelAttribute[]) {
+    super(values, attributes);
+    this._label = this._formatLabel(values._label);
+  }
+
+  private _formatLabel(string: string): Label {
+    let singular = string[string.length - 1] === 's' ? string.substr(0, string.length - 1) : string;
+    let plural = string[string.length - 1] === 's' ? string : string + 's';
+    return {
+      original: string,
+      singular: singular,
+      plural: plural,
+      capitalizedSingular: singular[0].toUpperCase() + singular.slice(1),
+      capitalizedPlural: plural[0].toUpperCase() + plural.slice(1)
+    }
+  }
 
   public static hasOne(label: string, child: typeof ActiveRecord, property: string) {
     return new this({
@@ -61,65 +85,125 @@ export class ActiveRecordRelation extends Model {
   public init(model: ActiveRecord) {
     let condition = {};
     if (this._type === ActiveRecordRelationType.HasOne) {
-
-      Object.defineProperty(model, this._label, {
-        get: () => {
-          condition[this._property] = model.id;
-          return new ActiveQuery(this._child).where(condition).one();
-        },
-      });
-
+      this._initHasOne(model, condition);
     } else if (this._type === ActiveRecordRelationType.HasMany) {
-
-      Object.defineProperty(model, this._label, {
-        get: () => {
-          condition[this._property] = model.id;
-          return new ActiveQuery(this._child).where(condition).all();
-        },
-      });
-
+      this._initHasMany(model, condition);
     } else if (this._type === ActiveRecordRelationType.ManyToMany) {
-      let capitalizedLabel = this._label[0].toUpperCase() + this._label.slice(1);
-      Object.defineProperty(model, this._label, {
-        get: async () => {
-          condition[this._key] = model.id;
-          const res = await this._intermediate.pouch.find({
-            selector: condition,
-            fields: [this._foreignKey]
-          });
-          if (!res.docs.length) {
-            return [];
-          }
-          const ids = res.docs.map((doc) => doc[this._foreignKey]);
-          return new ActiveQuery(this._child).where({ _id: { $in: ids } }).all();
-        }
+      this._initManyToMany(model, condition);
+    }
+  }
+
+  private _initHasOne(model, condition) {
+    Object.defineProperty(model, this._label.original, {
+      get: () => {
+        condition[this._property] = model.id;
+        return new ActiveQuery(this._child).where(condition).one();
+      },
+    });
+  }
+
+  private _initHasMany(model, condition) {
+    // add foreign property to child class
+    this._child.addAttributes([new ModelAttribute(this._property, 'foreignKey')]);
+
+    // set getter `child` property
+    Object.defineProperty(model, this._label.original, {
+      get: async () => {
+        condition[this._property] = model.id;
+        return await new ActiveQuery(this._child).where(condition).all();
+      },
+    });
+
+    // add `getChild()` method
+    model['get' + this._label.capitalizedPlural] = async () => {
+      condition[this._property] = model.id;
+      return await new ActiveQuery(this._child).where(condition);
+    };
+
+    // add `addChild()` method
+    model['add' + this._label.capitalizedSingular] = async (object: any) => {
+      return model['add' + this._label.capitalizedPlural]([object]);
+    }
+
+    // add `addChildren()` method
+    model['add' + this._label.capitalizedPlural] = async (objects: any[]) => {
+      if (!objects.length) {
+        return;
+      }
+
+      // set parent model id in children models
+      objects = objects.map((object) => {
+        object[this._property] = model.id;
+        return object;
       });
 
-      model['add' + capitalizedLabel] = async (objects) => {
-        if (!Array.isArray(objects)) {
-          objects = [objects];
-        }
-        if (!objects.length) {
-          return;
-        }
+      // save all objects
+      await this._child.save(objects);
+    }
+  }
 
-        // make all objects a instance of foreign class
-        objects = objects.map((object) => object instanceof this._child ? object : new this._child(object));
-        for (let object of objects) {
-          await object.save();
-        }
+  private _initManyToMany(model, condition) {
+    // add foreign property to intermediate class
+    this._intermediate.addAttributes([new ModelAttribute(this._foreignKey, 'foreignKey')]);
 
-        let condition = {};
-        condition[this._foreignKey] = { $in: objects.map((object) => object.id) };
-        const existing = await this._intermediate.findAll(condition);
-
-        for (let object of objects) {
-          let data = {};
-          data[this._key] = model.id;
-          data[this._foreignKey] = object.id;
-          let relation = new this._intermediate(data);
-          await relation.save();
+    // set getter `child` property
+    Object.defineProperty(model, this._label.plural, {
+      get: async () => {
+        condition[this._key] = model.id;
+        const res = await this._intermediate.pouch.find({
+          selector: condition,
+          fields: [this._foreignKey]
+        });
+        if (!res.docs.length) {
+          return [];
         }
+        const ids = res.docs.map((doc) => doc[this._foreignKey]);
+        return await new ActiveQuery(this._child)
+          .where({ _id: { $in: ids } })
+          .all();
+      }
+    });
+
+    // add `getChild()` method
+    model['get' + this._label.capitalizedPlural] = async () => {
+      condition[this._key] = model.id;
+      const res = await this._intermediate.pouch.find({
+        selector: condition,
+        fields: [this._foreignKey]
+      });
+      if (!res.docs.length) {
+        return [];
+      }
+      const ids = res.docs.map((doc) => doc[this._foreignKey]);
+      return await new ActiveQuery(this._child)
+        .where({ _id: { $in: ids } });
+    };
+
+    // add `addChild()` method
+    model['add' + this._label.capitalizedSingular] = async (object: any) => {
+      return model['add' + this._label.capitalizedPlural]([object]);
+    }
+
+    // add `addChildren()` method
+    model['add' + this._label.capitalizedPlural] = async (objects: any[]) => {
+      if (!objects.length) {
+        return;
+      }
+
+      // save all objects
+      await this._child.save(objects);
+
+      let condition = {};
+      condition[this._foreignKey] = { $in: objects.map((object) => object.id) };
+      const existing = await this._intermediate.findAll(condition);
+      console.log('@todo: check existing');
+
+      for (let object of objects) {
+        let data = {};
+        data[this._key] = model.id;
+        data[this._foreignKey] = object.id;
+        let relation = new this._intermediate(data);
+        await relation.save();
       }
     }
   }

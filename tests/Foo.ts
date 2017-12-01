@@ -2,22 +2,28 @@ import {
   ActiveRecord,
   ActiveRecordConfig,
   ModelAttribute,
-  ActiveRecordRelation
+  ActiveRecordRelation,
+  ActiveQuery
 } from './../index';
-
-import * as PouchDBMemory from 'pouchdb-adapter-memory';
 
 import { Bar } from './Bar';
 import { Foo_Bar } from './Foo_Bar';
 import { FooChild } from './FooChild';
 
-export class Foo extends ActiveRecord {
+export interface FooInterface {
+  id: string;
 
-  foo: string;
-  goo: number;
+  foo?: string;
+  goo?: number;
 
-  bars: Bar[];
-  fooChild: FooChild;
+  bars?: Bar[];
+  fooChild?: FooChild;
+
+  getBars?: () => Promise<ActiveQuery>
+  addBars?: (any) => Promise<void>
+}
+
+export class Foo extends ActiveRecord implements FooInterface {
 
   protected static _attributes: ModelAttribute[] = [
     new ModelAttribute('foo'),
@@ -26,11 +32,6 @@ export class Foo extends ActiveRecord {
 
   protected static _relations: ActiveRecordRelation[] = [
     ActiveRecordRelation.manyToMany('bars', Bar, Foo_Bar, 'foo_id', 'bar_id'),
-    ActiveRecordRelation.hasOne('fooChild', FooChild, 'foo_id')
+    ActiveRecordRelation.hasMany('fooChildren', FooChild, 'foo_id')
   ];
-
-  protected static _config: ActiveRecordConfig = {
-    adapter: 'memory',
-    plugins: [PouchDBMemory]
-  };
 }

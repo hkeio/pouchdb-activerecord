@@ -6,13 +6,21 @@ let FooChild = require('./FooChild').FooChild;
 
 let assert = require('assert');
 let _ = require('lodash');
+let PouchDBMemory = require('pouchdb-adapter-memory');
+
+console.log(PouchDBMemory);
 
 describe('Foo', () => {
 
-  let model, model2;
+  Foo.config = { adapter: 'memory', plugins: [PouchDBMemory] };
+  Bar.config = { adapter: 'memory', plugins: [PouchDBMemory] };
+  Foo_Bar.config = { adapter: 'memory', plugins: [PouchDBMemory] };
+  FooChild.config = { adapter: 'memory', plugins: [PouchDBMemory] };
+
+  let model = new Foo({ foo: 'bar', goo: 1 });
+  let model2;
 
   it('init model', () => {
-    model = new Foo({ foo: 'bar', goo: 1 });
     assert.equal(JSON.stringify(model.attributes), '{"foo":"bar","goo":1}');
   });
 
@@ -22,7 +30,6 @@ describe('Foo', () => {
         assert.equal(model.isNewRecord, false);
         done();
       });
-
   });
 
   it('save()', (done) => {
@@ -79,24 +86,26 @@ describe('Foo', () => {
     done();
   });
 
-  it('model.fooChild should be null', (done) => {
-    model.fooChild
+  it('model.fooChild should be 0', (done) => {
+    model.fooChildren
       .then((res) => {
-        assert.equal(res, null);
+        assert.equal(res.length, 0);
         done();
       });
   });
 
-  it('model.fooChild should not be null', (done) => {
-    let child = new FooChild({ foo_id: model.id });
-    child.save()
+  it('model.fooChild should be 1', (done) => {
+    let child = new FooChild();
+    model.addFooChildren(child)
+      .then(() => model.fooChildren)
       .then((res) => {
-        assert.equal(JSON.stringify(res), JSON.stringify(child));
+        assert.equal(res.length, 1);
+        assert.equal(JSON.stringify(res[0]), JSON.stringify(child));
         done();
       });
   });
 
-  it('model.bars should not be 0', (done) => {
+  it('model.bars should be 0', (done) => {
     model.bars
       .then((res) => {
         assert.equal(res.length, 0);
@@ -104,16 +113,25 @@ describe('Foo', () => {
       });
   });
 
-  it('model.bars should not be 4', (done) => {
+  it('model.bars should be 4', (done) => {
     let bar = new Bar({ boo: 'ddd' });
     bar.save()
-      .then(() => model.addBars({ boo: 'aaa' }))
-      .then(() => model.addBars(new Bar({ boo: 'bbb' })))
+      .then(() => model.addBar({ boo: 'aaa' }))
+      .then(() => model.addBar(new Bar({ boo: 'bbb' })))
       .then(() => model.addBars([{ boo: 'ccc' }, bar]))
       .then(() => model.bars)
       .then((res) => {
         assert.equal(res.length, 4);
         assert.equal(res[0] instanceof Bar, true);
+        done();
+      });
+  });
+
+  it('model.getBars() should return ActiveQuery with condition set', (done) => {
+    model.getBars()
+      .then((query) => {
+        assert.equal(query.params.where._id.$in.length, 4);
+        assert.equal(query instanceof ActiveQuery, true);
         done();
       });
   });
