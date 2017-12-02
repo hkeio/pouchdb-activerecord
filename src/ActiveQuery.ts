@@ -8,7 +8,7 @@ export class ActiveQuery {
     fields: [],
     limit: {
       start: 0,
-      end: null
+      end: undefined
     },
     sort: [],
     where: {},
@@ -56,7 +56,7 @@ export class ActiveQuery {
     return this;
   }
 
-  public async one() {
+  public async one(map: boolean = true) {
     let query = {
       fields: null,
       limit: 1,
@@ -71,17 +71,27 @@ export class ActiveQuery {
       query.sort = this._params.sort;
     }
     const res = await this._pouch.find(query);
-    return res.docs.length ? new this._model(res.docs[0]) : null;
+    if (!res.docs.length) {
+      return null;
+    }
+    return map ? new this._model(res.docs[0]) : res.docs[0];
   }
 
-  public async all() {
-    const res = await this._pouch.find({
+  public async all(map: boolean = true) {
+    let query = {
+      fields: null,
+      limit: this._params.limit.end,
       selector: this._params.where,
-      // fields: this._params.fields,
-      // sort: this._params.sort,
-      // limit: this._params.limit.end,
-      // skip: this._params.limit.start
-    });
-    return res.docs.map((doc) => new this._model(doc));
+      sort: null,
+      skip: this._params.limit.start
+    };
+    if (this._params.fields.length) {
+      query.fields = this._params.fields;
+    }
+    if (this._params.sort.length) {
+      query.sort = this._params.sort;
+    }
+    const res = await this._pouch.find(query);
+    return map ? res.docs.map((doc) => new this._model(doc)) : res.docs;
   }
 }

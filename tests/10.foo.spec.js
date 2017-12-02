@@ -21,6 +21,7 @@ describe('Foo', () => {
   let model2;
 
   it('init model', () => {
+    assert.equal(model instanceof Foo, true);
     assert.equal(JSON.stringify(model.attributes), '{"foo":"bar","goo":1}');
   });
 
@@ -84,6 +85,31 @@ describe('Foo', () => {
     let query = Foo.find();
     assert.equal(query instanceof ActiveQuery, true);
     done();
+  });
+
+  it('find().one(false) without creating instance', (done) => {
+    Foo.find().one(false)
+      .then((res) => {
+        assert.equal(res instanceof Foo, false);
+        assert.equal(res.hasOwnProperty('foo'), true);
+        assert.equal(res.hasOwnProperty('goo'), true);
+        assert.equal(res.hasOwnProperty('_id'), true);
+        assert.equal(res.hasOwnProperty('_rev'), true);
+        done();
+      });
+  });
+
+  it('find().all(false) without creating instances', (done) => {
+    Foo.find().all(false)
+      .then((res) => {
+        assert.equal(res.length, 2);
+        assert.equal(res[0] instanceof Foo, false);
+        assert.equal(res[0].hasOwnProperty('foo'), true);
+        assert.equal(res[0].hasOwnProperty('goo'), true);
+        assert.equal(res[0].hasOwnProperty('_id'), true);
+        assert.equal(res[0].hasOwnProperty('_rev'), true);
+        done();
+      });
   });
 
   it('model.fooChildrens should be 0', (done) => {

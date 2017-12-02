@@ -133,6 +133,10 @@ See where options [here](https://pouchdb.com/guides/mango-queries.html)
 
 ## To Do
 
+* Add doc blocks
+* Add proper api documentation
 * Add test coverage
+* Add better ActiveQuery tests
+* Improve bulk insert/update
 * Add attribute validation on save
 * Make modular so underlying database system can be other than PouchDB
