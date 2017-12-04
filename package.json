@@ -6,7 +6,7 @@
     "build": "tsc",
     "postversion": "git push && npm publish",
     "pretest": "npm run build",
-    "test": "mocha tests"
+    "test": "mocha -r ts-node/register src/**/*.spec.ts"
   },
   "repository": {
     "type": "git",
@@ -16,12 +16,14 @@
   "license": "ISC",
   "homepage": "https://github.com/hkeio/pouchdb-activerecord#readme",
   "devDependencies": {
+    "@types/mocha": "^2.2.44",
     "@types/node": "^7.0.31",
     "@types/pouchdb": "^6.3.1",
     "@types/pouchdb-find": "^6.3.0",
-    "pouchdb-adapter-memory": "^6.3.4",
     "lodash": "^4.17.4",
     "mocha": "^3.4.2",
+    "pouchdb-adapter-memory": "^6.3.4",
+    "ts-node": "^3.3.0",
     "tslib": "^1.5.0",
     "typedoc": "^0.7.1",
     "typescript": "^2.3.4"

@@ -1,10 +1,20 @@
-import { ActiveRecord, PouchDbInstance } from './ActiveRecord';
+import { ActiveRecord, PouchDbInstance } from './../ActiveRecord';
+
+export interface ActiveQueryParams {
+  fields: string[],
+  limit: {
+    start: number,
+    end: number
+  },
+  sort: string[],
+  where: any,
+}
 
 export class ActiveQuery {
 
   private _model: typeof ActiveRecord;
   private _pouch: PouchDbInstance;
-  private _params = {
+  private _params: ActiveQueryParams = {
     fields: [],
     limit: {
       start: 0,
@@ -15,9 +25,6 @@ export class ActiveQuery {
   };
 
   constructor(model: typeof ActiveRecord) {
-    if (!model) {
-      throw new Error('NoModelException');
-    }
     model.init();
     this._pouch = model.pouch;
     this._model = model;

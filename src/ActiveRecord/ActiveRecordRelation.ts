@@ -1,5 +1,5 @@
-import { ActiveQuery } from './ActiveQuery';
-import { Model, ModelAttribute } from './Model';
+import { ActiveQuery } from './../ActiveQuery';
+import { Model, ModelAttribute } from './../Model';
 import { ActiveRecord } from './ActiveRecord';
 
 const ActiveRecordRelationType = {

@@ -10,8 +10,7 @@ import { Boo } from './Boo';
 import { Foo_Bar } from './Foo_Bar';
 import { FooChild } from './FooChild';
 
-export interface FooInterface {
-  id: string;
+export class Foo extends ActiveRecord {
 
   foo?: string;
   goo?: number;
@@ -29,9 +28,6 @@ export interface FooInterface {
   boo?: Boo;
   boo_id?: string;
   setBoo?: (object: any | Boo) => Promise<void>;
-}
-
-export class Foo extends ActiveRecord implements FooInterface {
 
   protected static _attributes: ModelAttribute[] = [
     new ModelAttribute('foo'),

@@ -1,5 +1,5 @@
-import { ActiveQuery } from './ActiveQuery';
-import { Model, ModelAttribute } from './Model';
+import { ActiveQuery } from './../ActiveQuery';
+import { Model, ModelAttribute } from './../Model';
 import { ActiveRecordRelation } from './ActiveRecordRelation';
 
 import * as PouchDB from 'pouchdb';
@@ -23,7 +23,7 @@ export class ActiveRecord extends Model {
   public _id: string;
   public _rev: string;
 
-  protected static _config: ActiveRecordConfig = { plugins: [] };
+  public static _config: ActiveRecordConfig = { plugins: [] };
   protected static _relations: ActiveRecordRelation[] = [];
   private static _pouch: { [model: string]: PouchDbInstance; } = {};
   private static _initialized: { [model: string]: boolean; } = {};
@@ -90,7 +90,7 @@ export class ActiveRecord extends Model {
     return new ActiveQuery(this);
   }
 
-  public static async findOne(condition: any = {}): Promise<typeof ActiveRecord | ActiveRecord> {
+  public static async findOne(condition: any = {}): Promise<ActiveRecord> {
     this.init();
 
     // condition is id
@@ -103,7 +103,7 @@ export class ActiveRecord extends Model {
       .one();
   }
 
-  public static async findAll(condition = {}): Promise<typeof ActiveRecord[]> {
+  public static async findAll(condition = {}): Promise<ActiveRecord[]> {
     return await this.find()
       .where(condition)
       .all();
