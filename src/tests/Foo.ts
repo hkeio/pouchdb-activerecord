@@ -1,5 +1,4 @@
 import {
-  ActiveRecord,
   ModelAttribute,
   ActiveRecordRelation,
   ActiveQuery
@@ -10,7 +9,9 @@ import { Boo } from './Boo';
 import { Foo_Bar } from './Foo_Bar';
 import { FooChild } from './FooChild';
 
-export class Foo extends ActiveRecord {
+import { PouchDbActiveRecord } from '../../modules/pouchdb/PouchDbActiveRecord';
+
+export class Foo extends PouchDbActiveRecord {
 
   foo?: string;
   goo?: number;

@@ -1,4 +1,4 @@
-import { ActiveRecord, PouchDbInstance } from './../ActiveRecord';
+import { ActiveRecord, DbInstance } from './../ActiveRecord';
 
 export interface ActiveQueryParams {
   fields: string[],
@@ -10,10 +10,17 @@ export interface ActiveQueryParams {
   where: any,
 }
 
-export class ActiveQuery {
+export interface ActiveQueryInterface {
+  _db: DbInstance;
+  one(map?: boolean): Promise<typeof ActiveRecord>;
+  all(map?: boolean): Promise<typeof ActiveRecord[]>;
+}
+
+export class ActiveQuery implements ActiveQueryInterface {
+
+  _db: DbInstance;
 
   private _model: typeof ActiveRecord;
-  private _pouch: PouchDbInstance;
   private _params: ActiveQueryParams = {
     fields: [],
     limit: {
@@ -26,12 +33,20 @@ export class ActiveQuery {
 
   constructor(model: typeof ActiveRecord) {
     model.init();
-    this._pouch = model.pouch;
+    this._db = model.db;
     this._model = model;
   }
 
   public get params() {
     return this._params;
+  }
+
+  public get db() {
+    return this._db;
+  }
+
+  public get model() {
+    return this._model;
   }
 
   public fields(param: string[]) {
@@ -63,42 +78,6 @@ export class ActiveQuery {
     return this;
   }
 
-  public async one(map: boolean = true) {
-    let query = {
-      fields: null,
-      limit: 1,
-      selector: this._params.where,
-      sort: null,
-      skip: 0
-    };
-    if (this._params.fields.length) {
-      query.fields = this._params.fields;
-    }
-    if (this._params.sort.length) {
-      query.sort = this._params.sort;
-    }
-    const res = await this._pouch.find(query);
-    if (!res.docs.length) {
-      return null;
-    }
-    return map ? new this._model(res.docs[0]) : res.docs[0];
-  }
-
-  public async all(map: boolean = true) {
-    let query = {
-      fields: null,
-      limit: this._params.limit.end,
-      selector: this._params.where,
-      sort: null,
-      skip: this._params.limit.start
-    };
-    if (this._params.fields.length) {
-      query.fields = this._params.fields;
-    }
-    if (this._params.sort.length) {
-      query.sort = this._params.sort;
-    }
-    const res = await this._pouch.find(query);
-    return map ? res.docs.map((doc) => new this._model(doc)) : res.docs;
-  }
+  public one(map?: boolean): Promise<any> { return Promise.resolve(); }
+  public all(map?: boolean): Promise<any[]> { return Promise.resolve([]); }
 }

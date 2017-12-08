@@ -1,3 +1,3 @@
-import { ActiveRecord } from './../index';
+import { PouchDbActiveRecord } from '../../modules/pouchdb/PouchDbActiveRecord';
 
-export class Boo extends ActiveRecord { }
+export class Boo extends PouchDbActiveRecord { }

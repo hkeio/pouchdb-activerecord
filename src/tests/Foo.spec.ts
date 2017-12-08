@@ -2,7 +2,7 @@ import { equal } from 'assert';
 import * as _ from 'lodash';
 import * as PouchDBMemory from 'pouchdb-adapter-memory';
 
-import { ActiveQuery } from './../ActiveQuery';
+import { PouchDBActiveQuery } from '../../modules/pouchdb/PouchDBActiveQuery';
 import { Foo } from './Foo';
 import { Bar } from './Bar';
 import { Boo } from './Boo';
@@ -65,7 +65,7 @@ describe('Foo', () => {
 
   it('find() should return ActiveQuery', () => {
     let query = Foo.find();
-    equal(query instanceof ActiveQuery, true);
+    equal(query instanceof PouchDBActiveQuery, true);
   });
 
   it('find().one(false) without creating instance', async () => {
@@ -119,7 +119,7 @@ describe('Foo', () => {
   it('model.getBars() should return ActiveQuery with condition set', async () => {
     const query = await model.getBars();
     equal(query.params.where._id.$in.length, 4);
-    equal(query instanceof ActiveQuery, true);
+    equal(query instanceof PouchDBActiveQuery, true);
   });
 
   it('model.boo and model.boo_id should be null', async () => {

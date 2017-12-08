@@ -1,9 +1,7 @@
-import {
-  ActiveRecord,
-  ModelAttribute
-} from './../index';
+import { ModelAttribute } from './../index';
+import { PouchDbActiveRecord } from '../../modules/pouchdb/PouchDbActiveRecord';
 
-export class Bar extends ActiveRecord {
+export class Bar extends PouchDbActiveRecord {
 
   boo: string;
 

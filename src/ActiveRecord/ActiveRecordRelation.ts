@@ -159,14 +159,14 @@ export class ActiveRecordRelation extends Model {
     Object.defineProperty(model, this._label.plural, {
       get: async () => {
         condition[this._key] = model.id;
-        const res = await this._intermediate.pouch.find({
-          selector: condition,
-          fields: [this._foreignKey]
-        });
-        if (!res.docs.length) {
+        const res = await this._intermediate.find()
+          .where(condition)
+          .fields([this._foreignKey])
+          .all(false);
+        if (!res.length) {
           return [];
         }
-        const ids = res.docs.map((doc) => doc[this._foreignKey]);
+        const ids = res.map((doc) => doc[this._foreignKey]);
         return await new ActiveQuery(this._child)
           .where({ _id: { $in: ids } })
           .all();
@@ -176,14 +176,14 @@ export class ActiveRecordRelation extends Model {
     // add `getChild()` method
     model['get' + this._label.capitalizedPlural] = async () => {
       condition[this._key] = model.id;
-      const res = await this._intermediate.pouch.find({
-        selector: condition,
-        fields: [this._foreignKey]
-      });
-      if (!res.docs.length) {
+      const res = await this._intermediate.find()
+        .where(condition)
+        .fields([this._foreignKey])
+        .all(false);
+      if (!res.length) {
         return [];
       }
-      const ids = res.docs.map((doc) => doc[this._foreignKey]);
+      const ids = res.map((doc) => doc[this._foreignKey]);
       return await new ActiveQuery(this._child)
         .where({ _id: { $in: ids } });
     };
