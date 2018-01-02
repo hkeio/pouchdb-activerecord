@@ -18,9 +18,9 @@ interface Label {
 
 export class ActiveRecordRelation extends Model {
 
-  private _child: typeof ActiveRecord;
+  private _child: typeof ActiveRecord & any;
   private _foreignKey: string;
-  private _intermediate: typeof ActiveRecord;
+  private _intermediate: typeof ActiveRecord & any;
   private _key: string;
   private _label: Label;
   private _property: string;

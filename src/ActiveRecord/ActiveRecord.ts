@@ -1,28 +1,27 @@
 import { ActiveQuery } from './../ActiveQuery';
 import { Model, ModelAttribute } from './../Model';
 import { ActiveRecordRelation } from './ActiveRecordRelation';
+import { Exception } from 'handlebars/handlebars.runtime';
 
 export interface ActiveRecordConfig {
   adapter?: string;
+  identifier: 'id';
+  tableName: string;
   plugins?: any[];
 }
 
 export abstract class DbInstance { }
 
-// @todo: this does not work correctly
-export abstract class ActiveRecordBaseClass {
-  // protected _class: any;
-  static _db?: { [model: string]: DbInstance; }
-  public static save: (objects: any[]) => Promise<ActiveRecord[]>;
-}
+export abstract class ActiveRecord extends Model {
 
-export abstract class ActiveRecord extends Model implements ActiveRecordBaseClass {
+  public static relations: ActiveRecordRelation[] = [];
 
-  public _class: any;
-  static _db: { [model: string]: DbInstance; } = {};
+  private static _config: ActiveRecordConfig = {
+    identifier: 'id',
+    tableName: 'ActiveRecord'
+  };
 
-  public static _config: ActiveRecordConfig = { plugins: [] };
-  protected static _relations: ActiveRecordRelation[] = [];
+  private static _db: { [model: string]: DbInstance; } = {};
   private static _initialized: { [model: string]: boolean; } = {};
 
   constructor(values?) {
@@ -34,7 +33,17 @@ export abstract class ActiveRecord extends Model implements ActiveRecordBaseClas
   static get db() {
     return this._db;
   }
-  static _dbInit() { }
+  protected static _dbInit() {
+    throw new Error('<Model>._dbInit() must be set!')
+  }
+
+  public static initialized(model: string) {
+    this._initialized[model] = true;
+  }
+
+  public static get config() {
+    return this._config;
+  }
 
   public static set config(config) {
     Object.keys(config).forEach((key) => {
@@ -42,13 +51,13 @@ export abstract class ActiveRecord extends Model implements ActiveRecordBaseClas
     });
   }
 
-  private static init() {
-    if (this._initialized[this.className]) {
+  public static init() {
+    if (this._initialized[this.config.tableName]) {
       return;
     }
 
     this._dbInit();
-    this._initialized[this.className] = true;
+    this._initialized[this.config.tableName] = true;
   }
 
   private _initRelations() {
@@ -58,12 +67,11 @@ export abstract class ActiveRecord extends Model implements ActiveRecordBaseClas
   /* Easy access getter */
 
   get id(): string {
-    return this.getAttribute('_id');
+    return this.getAttribute(this._class._config.identifier);
   }
 
   set id(value: string) {
     throw new Error('Property id cannot be set!');
-    // this.setAttribute('_id', value);
   }
 
   get isNewRecord(): boolean {
@@ -96,10 +104,5 @@ export abstract class ActiveRecord extends Model implements ActiveRecordBaseClas
       .all();
   }
 
-  public async save(): Promise<this> {
-    const res = await this._class.pouch.post(this.attributes);
-    this.setAttribute('_id', res.id);
-    this.setAttribute('_rev', res.rev);
-    return this;
-  }
+  public abstract save(): any;
 }
