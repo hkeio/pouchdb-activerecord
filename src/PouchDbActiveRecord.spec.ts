@@ -22,59 +22,23 @@ describe('PouchDbActiveRecord', () => {
 
 });
 
+class Foo extends PouchDbActiveRecord {
+
+  _id: string;
+  foo?: string;
+  goo?: number;
+
+  static _identifier = '_id';
+  static _tableName = 'Foo';
+  static dbConfig = { adapter: 'memory', plugins: [PouchDBMemory] };
+
+  public static _attributes: ModelAttribute[] = [
+    new ModelAttribute('foo'),
+    new ModelAttribute('goo'),
+  ];
+}
+
 describe('Foo', () => {
-
-  class Boo extends PouchDbActiveRecord { }
-  class Bar extends PouchDbActiveRecord {
-    boo: string;
-
-    public static _attributes: ModelAttribute[] = [
-      new ModelAttribute('boo')
-    ];
-  }
-  class Foo_Bar extends PouchDbActiveRecord { }
-  class FooChild extends PouchDbActiveRecord { }
-  class Foo extends PouchDbActiveRecord {
-    foo?: string;
-    goo?: number;
-
-    bars?: Bar[];
-    getBars?: () => Promise<PouchDBActiveQuery>;
-    addBar?: (object: any | Bar) => Promise<void>;
-    addBars?: (pbjects: any[] | Bar[]) => Promise<void>;
-
-    fooChildrens?: FooChild[];
-    getFooChildrens?: () => Promise<PouchDBActiveQuery>;
-    addFooChildren?: (object: any | FooChild) => Promise<void>;
-    addFooChildrens?: (objects: any[] | FooChild[]) => Promise<void>;
-
-    boo?: Boo;
-    boo_id?: string;
-    setBoo?: (object: any | Boo) => Promise<void>;
-
-    public static _attributes: ModelAttribute[] = [
-      new ModelAttribute('foo'),
-      new ModelAttribute('goo'),
-    ];
-
-    protected static _relations: ActiveRecordRelation[] = [
-      ActiveRecordRelation.manyToMany('bars', Bar, Foo_Bar, 'foo_id', 'bar_id'),
-      ActiveRecordRelation.hasMany('fooChildren', FooChild, 'foo_id'),
-      ActiveRecordRelation.hasOne('boo', Boo, 'boo_id')
-    ];
-  }
-
-  Foo._tableName = 'Foo';
-  Foo.dbConfig = { adapter: 'memory', plugins: [PouchDBMemory] };
-
-  Bar._tableName = 'Bar';
-  Bar.dbConfig = { adapter: 'memory', plugins: [PouchDBMemory] };
-
-  Foo_Bar._tableName = 'Foo_Bar';
-  Foo_Bar.dbConfig = { adapter: 'memory', plugins: [PouchDBMemory] };
-
-  FooChild._tableName = 'FooChild';
-  FooChild.dbConfig = { adapter: 'memory', plugins: [PouchDBMemory] };
 
   let model = new Foo({ foo: 'bar', goo: 1 });
   let model2;
@@ -145,56 +109,6 @@ describe('Foo', () => {
     equal(res[0].hasOwnProperty('goo'), true);
     equal(res[0].hasOwnProperty('_id'), true);
     equal(res[0].hasOwnProperty('_rev'), true);
-  });
-
-  it('model.fooChildrens should be 0', async () => {
-    const res: FooChild[] = await model.fooChildrens;
-    equal(res.length, 0);
-  });
-
-  it('model.fooChildrens should be 1', async () => {
-    let child = new FooChild();
-    await model.addFooChildren(child);
-    const res = await model.fooChildrens;
-    equal(res.length, 1);
-    equal(JSON.stringify(res[0]), JSON.stringify(child));
-  });
-
-  it('model.bars should be 0', async () => {
-    const res: Bar[] = await model.bars;
-    equal(res.length, 0);
-  });
-
-  it('model.bars should be 4', async () => {
-    let bar = new Bar({ boo: 'ddd' });
-    await bar.save();
-    await model.addBar({ boo: 'aaa' });
-    await model.addBar(new Bar({ boo: 'bbb' }));
-    await model.addBars([{ boo: 'ccc' }, bar]);
-    const res = await model.bars;
-    equal(res.length, 4);
-    equal(res[0] instanceof Bar, true);
-  });
-
-  it('model.getBars() should return ActiveQuery with condition set', async () => {
-    const query = await model.getBars();
-    equal(query.params.where._id.$in.length, 4);
-    equal(query instanceof PouchDBActiveQuery, true);
-  });
-
-  it('model.boo and model.boo_id should be null', async () => {
-    const res = await model.boo;
-    equal(res, null);
-    equal(model.boo_id, null);
-  });
-
-  it('model.boo and model.boo_id should be set', async () => {
-    let boo = new Boo();
-    await model.setBoo(boo);
-    const res = await model.boo;
-    equal(res instanceof Boo, true);
-    equal(JSON.stringify(res), JSON.stringify(boo));
-    equal(model.boo_id, boo.id);
   });
 
 });

@@ -28,7 +28,7 @@
     "typescript": "^2.6.2"
   },
   "dependencies": {
-    "@hke/activerecord": "0.0.8",
+    "@hke/activerecord": "0.0.10",
     "pouchdb": "^6.3.4",
     "pouchdb-find": "^6.3.4"
   }
