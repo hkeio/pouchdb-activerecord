@@ -5,7 +5,6 @@
   "scripts": {
     "build": "tsc",
     "postversion": "git push && npm publish",
-    "pretest": "npm run build",
     "test": "mocha -r ts-node/register src/**/*.spec.ts"
   },
   "repository": {
@@ -29,6 +28,7 @@
     "typescript": "^2.6.2"
   },
   "dependencies": {
+    "@hke/activerecord": "0.0.8",
     "pouchdb": "^6.3.4",
     "pouchdb-find": "^6.3.4"
   }

@@ -7,6 +7,4 @@ Thumbs.db
 .DS_Store
 
 # Ignored files
-*.js
-*.map
-*.d.ts
+dist
