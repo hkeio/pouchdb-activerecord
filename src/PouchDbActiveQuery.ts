@@ -1,4 +1,4 @@
-import { ActiveQuery } from "@hke/activerecord/dist";
+import { ActiveQuery } from "@hke/activerecord";
 import { PouchDbInstance } from "./PouchDbActiveRecord";
 
 export class PouchDBActiveQuery extends ActiveQuery {

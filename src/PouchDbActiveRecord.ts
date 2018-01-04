@@ -1,4 +1,4 @@
-import { ActiveRecord, ModelAttribute } from "@hke/activerecord/dist";
+import { ActiveRecord, ModelAttribute } from "@hke/activerecord";
 import { PouchDBActiveQuery } from "./PouchDbActiveQuery";
 
 import * as PouchDB from 'pouchdb';
@@ -29,10 +29,6 @@ export class PouchDbActiveRecord extends ActiveRecord {
     new ModelAttribute('_rev')
   ]
 
-  protected _initRelations() {
-    this._class.relations.forEach((relation) => relation.init(this));
-  }
-
   static _dbInit() {
     if (this.dbConfig.plugins) {
       this.dbConfig.plugins.forEach((plugin) => {
@@ -42,7 +38,7 @@ export class PouchDbActiveRecord extends ActiveRecord {
     delete this.dbConfig.plugins;
     this._db[this.config.tableName] = new PouchDb('.db/' + this.config.tableName, this.dbConfig);
     super.initialized(this.config.tableName);
-    return true;
+    return Promise.resolve(true);
   }
 
   public async save(): Promise<this> {

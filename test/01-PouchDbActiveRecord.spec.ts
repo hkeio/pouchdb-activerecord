@@ -2,13 +2,15 @@ import { equal } from 'assert';
 import * as _ from 'lodash';
 import * as PouchDBMemory from 'pouchdb-adapter-memory';
 
-import { PouchDbActiveRecord as ActiveRecord, PouchDbActiveRecord } from './PouchDbActiveRecord';
-import { PouchDBActiveQuery } from './PouchDbActiveQuery';
-import { ModelAttribute, ActiveRecordRelation } from '@hke/activerecord/dist';
+import {
+  PouchDbActiveRecord as ActiveRecord,
+  PouchDBActiveQuery as ActiveQuery
+} from './../src';
+import { ModelAttribute } from '@hke/activerecord';
 
 describe('PouchDbActiveRecord', () => {
 
-  it('should be instance of PouchDbActiveRecord', () => {
+  it('should be instance of ActiveRecord', () => {
 
     let values = { foo: 'bar', goo: 1 };
     let model = new ActiveRecord(values);
@@ -22,7 +24,7 @@ describe('PouchDbActiveRecord', () => {
 
 });
 
-class Foo extends PouchDbActiveRecord {
+class Foo extends ActiveRecord {
 
   _id: string;
   foo?: string;
@@ -67,8 +69,8 @@ describe('Foo', () => {
   it('findAll()', async () => {
     const res: Foo[] = await Foo.findAll();
     equal(res.length, 2);
-    let _model1 = _.find(res, { _id: model.id });
-    let _model2 = _.find(res, { _id: model2.id });
+    let _model1 = _.find(res, { id: model.id });
+    let _model2 = _.find(res, { id: model2.id });
     equal(_model1 instanceof Foo, true);
     equal(_model1.foo, 'bar');
     equal(_model2 instanceof Foo, true);
@@ -87,9 +89,9 @@ describe('Foo', () => {
     equal(res[0].foo, 'baz');
   });
 
-  it('find() should return PouchDBActiveQuery', () => {
+  it('find() should return ActiveQuery', () => {
     let query = Foo.find();
-    equal(query instanceof PouchDBActiveQuery, true);
+    equal(query instanceof ActiveQuery, true);
   });
 
   it('find().one(false) without creating instance', async () => {

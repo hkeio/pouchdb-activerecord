@@ -1,11 +1,13 @@
 {
   "name": "pouchdb-activerecord",
   "version": "1.1.0",
-  "description": "",
+  "description": "PouchDb implementation of @hke/activerecord",
+  "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "webpack",
+    "preversion": "npm run build",
     "postversion": "git push && npm publish",
-    "test": "mocha -r ts-node/register src/**/*.spec.ts"
+    "test": "mocha -r ts-node/register test/*.spec.ts"
   },
   "repository": {
     "type": "git",
@@ -19,16 +21,18 @@
     "@types/node": "^7.0.48",
     "@types/pouchdb": "^6.3.1",
     "@types/pouchdb-find": "^6.3.1",
+    "app-root-path": "^2.0.1",
     "lodash": "^4.17.4",
     "mocha": "^3.4.2",
     "pouchdb-adapter-memory": "^6.3.4",
+    "ts-loader": "^3.2.0",
     "ts-node": "^3.3.0",
-    "tslib": "^1.5.0",
-    "typedoc": "^0.7.1",
-    "typescript": "^2.6.2"
+    "typescript": "^2.6.2",
+    "uglifyjs-webpack-plugin": "^1.1.5",
+    "webpack": "^3.10.0"
   },
   "dependencies": {
-    "@hke/activerecord": "0.0.10",
+    "@hke/activerecord": "0.0.13",
     "pouchdb": "^6.3.4",
     "pouchdb-find": "^6.3.4"
   }
