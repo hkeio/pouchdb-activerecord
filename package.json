@@ -6,9 +6,9 @@
   "types": "./types/index.d.ts",
   "scripts": {
     "build": "webpack",
-    "preversion": "npm run build",
+    "preversion": "npm test",
     "postversion": "git push && npm publish",
-    "test": "mocha -r ts-node/register test/*.spec.ts"
+    "test": "mocha -r ts-node/register test/*.spec.ts && npm run build"
   },
   "repository": {
     "type": "git",
