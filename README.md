@@ -1,55 +1,30 @@
+# pouchdb-activerecord
+
+[![Build Status](https://travis-ci.org/hkeio/pouchdb-activerecord.svg?branch=master)](https://travis-ci.org/hkeio/pouchdb-activerecord)
+
 ## Example
 
 ```
+import * as PouchDBMemory from 'pouchdb-adapter-memory';
 import {
-  ActiveRecord,
-  ModelAttribute,
-  ActiveRecordRelation,
-  ActiveQuery
-} from './../index';
+  PouchDbActiveRecord as ActiveRecord,
+  PouchDbActiveQuery as ActiveQuery
+} from './../src';
+import { ModelAttribute } from '@hke/activerecord';
 
-import { Bar } from './Bar';
-import { Boo } from './Boo';
-import { Foo_Bar } from './Foo_Bar';
-import { FooChild } from './FooChild';
+class Foo extends ActiveRecord {
 
-export interface FooInterface {
-  // declare id to prevent transpilation error
-  id: string;
-
-  // following properties and methods get defined at runtime
+  _id: string;
   foo?: string;
   goo?: number;
 
-  // defined by `ActiveRecordRelation.manyToMany`
-  bars?: Bar[];
-  getBars?: () => Promise<ActiveQuery>;
-  addBar?: (object: any | Bar) => Promise<void>;
-  addBars?: (pbjects: any[] | Bar[]) => Promise<void>;
+  static _identifier = '_id';
+  static _tableName = 'Foo';
+  static dbConfig = { adapter: 'memory', plugins: [PouchDBMemory] };
 
-  // defined by `ActiveRecordRelation.hasMany`
-  fooChildrens?: FooChild[];
-  getFooChildrens?: () => Promise<ActiveQuery>;
-  addFooChildren?: (object: any | FooChild) => Promise<void>;
-  addFooChildrens?: (objects: any[] | FooChild[]) => Promise<void>;
-
-  // defined by `ActiveRecordRelation.hasOne`
-  boo?: Boo;
-  boo_id?: string;
-  setBoo?: (object: any | Boo) => Promise<void>;
-}
-
-export class Foo extends ActiveRecord implements FooInterface {
-
-  protected static _attributes: ModelAttribute[] = [
+  public static _attributes: ModelAttribute[] = [
     new ModelAttribute('foo'),
     new ModelAttribute('goo'),
-  ];
-
-  protected static _relations: ActiveRecordRelation[] = [
-    ActiveRecordRelation.manyToMany('bars', Bar, Foo_Bar, 'foo_id', 'bar_id'),
-    ActiveRecordRelation.hasMany('fooChildren', FooChild, 'foo_id'),
-    ActiveRecordRelation.hasOne('boo', Boo, 'boo_id')
   ];
 }
 
@@ -130,13 +105,3 @@ query
 ```
 
 See where options [here](https://pouchdb.com/guides/mango-queries.html)
-
-## To Do
-
-* Add doc blocks
-* Add proper api documentation
-* Add test coverage
-* Add better ActiveQuery tests
-* Improve bulk insert/update
-* Add attribute validation on save
-* Make modular so underlying database system can be other than PouchDB
