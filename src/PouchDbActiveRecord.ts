@@ -21,13 +21,14 @@ export class PouchDbActiveRecord extends ActiveRecord {
   public _id: string;
   public _rev: string;
 
-  protected static _db: { [model: string]: PouchDbInstance; } = {};
   static dbConfig: any = {};
-  static _attributes = [
+  protected static _db: { [model: string]: PouchDbInstance; } = {};
+
+  protected static _attributes = [
     // add internal pouchdb properties
     new ModelAttribute('_id'),
     new ModelAttribute('_rev')
-  ]
+  ];
 
   static _dbInit() {
     if (this.dbConfig.plugins) {

@@ -10,11 +10,11 @@ export declare class PouchDbActiveRecord extends ActiveRecord {
     static _queryClass: typeof PouchDbActiveQuery;
     _id: string;
     _rev: string;
+    static dbConfig: any;
     protected static _db: {
         [model: string]: PouchDbInstance;
     };
-    static dbConfig: any;
-    static _attributes: ModelAttribute[];
+    protected static _attributes: ModelAttribute[];
     static _dbInit(): Promise<boolean>;
     save(): Promise<this>;
     static save(objects: any[]): Promise<void>;

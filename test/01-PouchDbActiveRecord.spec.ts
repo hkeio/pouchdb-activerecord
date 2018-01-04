@@ -1,10 +1,11 @@
 import { equal } from 'assert';
-import * as _ from 'lodash';
+import { find } from 'lodash';
 import * as PouchDBMemory from 'pouchdb-adapter-memory';
 
 import {
   PouchDbActiveRecord as ActiveRecord,
-  PouchDbActiveQuery as ActiveQuery
+  PouchDbActiveQuery as ActiveQuery,
+  ActiveRecordRelation
 } from './../src';
 import { ModelAttribute } from '@hke/activerecord';
 
@@ -24,19 +25,28 @@ describe('PouchDbActiveRecord', () => {
 
 });
 
-class Foo extends ActiveRecord {
+class Boo extends ActiveRecord {
+  static _tableName = 'Boo';
+  // static dbConfig = { adapter: 'memory', plugins: [PouchDBMemory] };
+}
 
+class Foo extends ActiveRecord {
   _id: string;
   foo?: string;
   goo?: number;
 
-  static _identifier = '_id';
-  static _tableName = 'Foo';
-  static dbConfig = { adapter: 'memory', plugins: [PouchDBMemory] };
+  addBoo: (any) => Promise<Boo>;
 
-  public static _attributes: ModelAttribute[] = [
+  static _tableName = 'Foo';
+  // static dbConfig = { adapter: 'memory', plugins: [PouchDBMemory] };
+
+  protected static _attributes: ModelAttribute[] = [
     new ModelAttribute('foo'),
     new ModelAttribute('goo'),
+  ];
+
+  protected static _relations: ActiveRecordRelation[] = [
+    ActiveRecordRelation.hasMany('boo', Boo, 'foo_id')
   ];
 }
 
@@ -69,8 +79,8 @@ describe('Foo', () => {
   it('findAll()', async () => {
     const res: Foo[] = await Foo.findAll();
     equal(res.length, 2);
-    let _model1 = _.find(res, { id: model.id });
-    let _model2 = _.find(res, { id: model2.id });
+    let _model1 = find(res, { id: model.id });
+    let _model2 = find(res, { id: model2.id });
     equal(_model1 instanceof Foo, true);
     equal(_model1.foo, 'bar');
     equal(_model2 instanceof Foo, true);
