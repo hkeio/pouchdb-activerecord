@@ -1,5 +1,5 @@
 import { ActiveRecord, ModelAttribute } from "@hke/activerecord";
-import { PouchDBActiveQuery } from "./PouchDbActiveQuery";
+import { PouchDbActiveQuery } from "./PouchDbActiveQuery";
 export interface PouchDbInstance {
     get: (id: string) => Promise<any>;
     find: (condition: any) => Promise<any>;
@@ -7,7 +7,7 @@ export interface PouchDbInstance {
 export declare class PouchDbActiveRecord extends ActiveRecord {
     static _identifier: string;
     static _tableName: string;
-    static _queryClass: typeof PouchDBActiveQuery;
+    static _queryClass: typeof PouchDbActiveQuery;
     _id: string;
     _rev: string;
     protected static _db: {

@@ -1,7 +1,7 @@
 import { ActiveQuery } from "@hke/activerecord";
 import { PouchDbInstance } from "./PouchDbActiveRecord";
 
-export class PouchDBActiveQuery extends ActiveQuery {
+export class PouchDbActiveQuery extends ActiveQuery {
 
   db: PouchDbInstance;
 

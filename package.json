@@ -2,7 +2,8 @@
   "name": "pouchdb-activerecord",
   "version": "1.2.0",
   "description": "PouchDb implementation of @hke/activerecord",
-  "main": "dist/index.js",
+  "main": "index.js",
+  "types": "./types/index.d.ts",
   "scripts": {
     "build": "webpack",
     "preversion": "npm run build",
@@ -11,9 +12,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com:hkeio/pouchdb-activerecord.git"
+    "url": "git+https://github.com/hkeio/pouchdb-activerecord.git"
   },
-  "author": "",
+  "bugs": {
+    "url": "https://github.com/hkeio/pouchdb-activerecord/issues"
+  },
+  "author": "Heiko Holland",
   "license": "ISC",
   "homepage": "https://github.com/hkeio/pouchdb-activerecord#readme",
   "devDependencies": {

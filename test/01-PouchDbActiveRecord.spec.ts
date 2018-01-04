@@ -4,7 +4,7 @@ import * as PouchDBMemory from 'pouchdb-adapter-memory';
 
 import {
   PouchDbActiveRecord as ActiveRecord,
-  PouchDBActiveQuery as ActiveQuery
+  PouchDbActiveQuery as ActiveQuery
 } from './../src';
 import { ModelAttribute } from '@hke/activerecord';
 

@@ -1,5 +1,5 @@
 import { ActiveRecord, ModelAttribute } from "@hke/activerecord";
-import { PouchDBActiveQuery } from "./PouchDbActiveQuery";
+import { PouchDbActiveQuery } from "./PouchDbActiveQuery";
 
 import * as PouchDB from 'pouchdb';
 import * as PouchDBFind from 'pouchdb-find';
@@ -16,7 +16,7 @@ export class PouchDbActiveRecord extends ActiveRecord {
 
   static _identifier = '_id';
   static _tableName = 'PouchDbActiveRecord';
-  static _queryClass = PouchDBActiveQuery;
+  static _queryClass = PouchDbActiveQuery;
 
   public _id: string;
   public _rev: string;
