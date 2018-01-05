@@ -8,7 +8,7 @@
     "build": "webpack",
     "preversion": "npm test && npm run build && git add -A && git commit -m \"pre publish commit\"",
     "postversion": "git push && npm publish",
-    "test": "mocha -r ts-node/register test/*.spec.ts && npm run build"
+    "test": "mocha -r ts-node/register test/*.spec.ts"
   },
   "repository": {
     "type": "git",
