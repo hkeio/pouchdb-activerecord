@@ -27,7 +27,7 @@ describe('PouchDbActiveRecord', () => {
 
 class Boo extends ActiveRecord {
   static _tableName = 'Boo';
-  // static dbConfig = { adapter: 'memory', plugins: [PouchDBMemory] };
+  static dbConfig = { adapter: 'memory', plugins: [PouchDBMemory] };
 }
 
 class Foo extends ActiveRecord {
@@ -38,7 +38,7 @@ class Foo extends ActiveRecord {
   addBoo: (any) => Promise<Boo>;
 
   static _tableName = 'Foo';
-  // static dbConfig = { adapter: 'memory', plugins: [PouchDBMemory] };
+  static dbConfig = { adapter: 'memory', plugins: [PouchDBMemory] };
 
   protected static _attributes: ModelAttribute[] = [
     new ModelAttribute('foo'),

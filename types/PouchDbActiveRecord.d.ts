@@ -17,5 +17,4 @@ export declare class PouchDbActiveRecord extends ActiveRecord {
     protected static _attributes: ModelAttribute[];
     static _dbInit(): Promise<boolean>;
     save(): Promise<this>;
-    static save(objects: any[]): Promise<void>;
 }

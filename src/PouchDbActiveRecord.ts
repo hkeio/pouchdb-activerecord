@@ -43,18 +43,9 @@ export class PouchDbActiveRecord extends ActiveRecord {
   }
 
   public async save(): Promise<this> {
-    const res = await this.db.post(this.attributes);
+    const res = await this.class.db.post(this.attributes);
     this.setAttribute('_id', res.id);
     this.setAttribute('_rev', res.rev);
     return this;
-  }
-
-  public static async save(objects: any[]) {
-    for (let i in objects) {
-      if (!(objects[i] instanceof this)) {
-        objects[i] = new this(objects[i]);
-      }
-      await objects[i].save();
-    }
   }
 }
