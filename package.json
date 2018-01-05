@@ -1,6 +1,6 @@
 {
   "name": "pouchdb-activerecord",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "PouchDb implementation of @hke/activerecord",
   "main": "index.js",
   "types": "./types/index.d.ts",
