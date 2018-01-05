@@ -1,6 +1,9 @@
 # pouchdb-activerecord
 
+[![npm version](https://badge.fury.io/js/pouchdb-activerecord.svg)](https://badge.fury.io/js/pouchdb-activerecord)
 [![Build Status](https://travis-ci.org/hkeio/pouchdb-activerecord.svg?branch=master)](https://travis-ci.org/hkeio/pouchdb-activerecord)
+[![Maintainability](https://api.codeclimate.com/v1/badges/5ef976bb58a39825a1a5/maintainability)](https://codeclimate.com/github/hkeio/pouchdb-activerecord/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/5ef976bb58a39825a1a5/test_coverage)](https://codeclimate.com/github/hkeio/pouchdb-activerecord/test_coverage)
 
 ## Example
 
