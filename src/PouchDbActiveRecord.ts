@@ -48,4 +48,15 @@ export class PouchDbActiveRecord extends ActiveRecord {
     this.setAttribute('_rev', res.rev);
     return this;
   }
+
+  static async save(objects) {
+    let result = [];
+    for (let object of objects) {
+      if (!(object instanceof this)) {
+        object = new this(object);
+      }
+      result.push(await object.save());
+    }
+    return result;
+  }
 }
