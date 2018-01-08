@@ -1,49 +1,58 @@
-import { equal } from 'assert';
-import { find } from 'lodash';
+import { equal, deepEqual } from 'assert';
 import * as PouchDBMemory from 'pouchdb-adapter-memory';
 
-import {
-  PouchDbActiveRecord as ActiveRecord,
-  PouchDbActiveQuery as ActiveQuery,
-  ActiveRecordRelation
-} from './../src';
+import { PouchDbActiveRecord, PouchDbActiveQuery, ActiveRecordRelation } from './../src';
 import { ModelAttribute } from '@hke/activerecord';
 
-describe('PouchDbActiveRecord', () => {
-
-  it('should be instance of ActiveRecord', () => {
-
-    let values = { foo: 'bar', goo: 1 };
-    let model = new ActiveRecord(values);
-    equal(model instanceof ActiveRecord, true);
-
-    // static getter
-    equal(ActiveRecord.className, 'PouchDbActiveRecord');
-    // check for existance of db
-    equal(ActiveRecord.db !== undefined, true);
-  });
-
-});
-
-export class TestRecord extends ActiveRecord {
-  static _queryClass = ActiveQuery;
+export class TestRecord extends PouchDbActiveRecord {
+  static _queryClass = PouchDbActiveQuery;
   static dbConfig = { adapter: 'memory', plugins: [PouchDBMemory] };
 }
 
-class Boo extends TestRecord { static _tableName = 'Boo'; }
-class Bar extends TestRecord { static _tableName = 'Bar'; }
-class Foo_Bar extends TestRecord { static _tableName = 'Foo_Bar'; }
-class FooChild extends TestRecord { static _tableName = 'FooChild'; }
+class Boo extends TestRecord {
+  static _tableName = 'Boo';
+  foos?: Foo[];
+  getFoos: () => Promise<PouchDbActiveQuery>;
+  public static _attributes: ModelAttribute[] = [];
+  protected static _relations: ActiveRecordRelation[] = []
+}
+class Bar extends TestRecord {
+  static _tableName = 'Bar';
+  foos?: Foo[];
+  public static _attributes: ModelAttribute[] = [];
+  protected static _relations: ActiveRecordRelation[] = []
+}
+class Foo_Bar extends TestRecord {
+  static _tableName = 'Foo_Bar';
+  public static _attributes: ModelAttribute[] = [];
+}
+class FooChild extends TestRecord {
+  static _tableName = 'FooChild';
+  foo?: Foo;
+  public static _attributes: ModelAttribute[] = [];
+  protected static _relations: ActiveRecordRelation[] = []
+}
 class Foo extends TestRecord {
-  _id: string;
   foo?: string;
   goo?: number;
 
-  addBoo: (any) => Promise<Boo>;
+  bars?: Bar[];
+  getBars?: () => Promise<PouchDbActiveQuery>;
+  addBar?: (object: any | Bar) => Promise<Bar>;
+  addBars?: (pbjects: any[] | Bar[]) => Promise<Bar[]>;
+
+  fooChildrens?: FooChild[];
+  getFooChildrens?: () => Promise<PouchDbActiveQuery>;
+  addFooChildren?: (object: any | FooChild) => Promise<FooChild>;
+  addFooChildrens?: (objects: any[] | FooChild[]) => Promise<FooChild[]>;
+
+  boo?: Boo;
+  boo_id?: string;
+  setBoo?: (object: any | Boo) => Promise<Boo>;
 
   static _tableName = 'Foo';
 
-  protected static _attributes: ModelAttribute[] = [
+  public static _attributes: ModelAttribute[] = [
     new ModelAttribute('foo'),
     new ModelAttribute('goo'),
   ];
@@ -55,80 +64,89 @@ class Foo extends TestRecord {
   ];
 }
 
-describe('Foo', () => {
+Boo.addRelation(ActiveRecordRelation.hasMany('foo', Foo, 'boo_id'));
+Bar.addRelation(ActiveRecordRelation.manyToMany('foos', Foo, Foo_Bar, 'bar_id', 'foo_id'));
+FooChild.addRelation(ActiveRecordRelation.hasOne('foo', Foo, 'foo_id'));
 
-  let model = new Foo({ foo: 'bar', goo: 1 });
-  let model2;
+let values = {
+  foo: "bar",
+  goo: 1
+};
+let attributes = {
+  foo: "bar",
+  goo: 1,
+  boo_id: null
+}
+let foo = new Foo(values);
 
-  it('init model', () => {
-    equal(model instanceof Foo, true);
-    equal(JSON.stringify(model.attributes), '{"foo":"bar","goo":1}');
+describe('ActiveRecord', () => {
+
+  it('should be instance of ActiveRecord', async () => {
+
+    // static methods
+    equal(typeof Foo.find, 'function');
+    equal(typeof Foo.findOne, 'function');
+    equal(typeof Foo.findAll, 'function');
+
+    // static getter
+    equal(Foo.config.identifier, '_id');
+    equal(Foo.config.tableName, 'Foo');
+    equal(Foo.config.queryClass.prototype.constructor.name, PouchDbActiveQuery.prototype.constructor.name);
+    // check for existance of db
+    equal(Foo.db !== undefined, true);
+
+    // instance
+    equal(foo instanceof Foo, true);
+    equal(foo.isNewRecord, true);
+    deepEqual(foo.attributes, attributes);
+
+    // methods
+    equal(typeof foo.save, 'function');
+
+    // attributes
+    equal(foo.boo_id, null);
+
+    // save
+    equal(await foo.save() instanceof Foo, true);
+    equal(foo.isNewRecord, false);
+    equal((await Foo.findAll()).length, 1);
+  });
+});
+
+describe('ActiveQuery', () => {
+
+  it('should be instance of ActiveQuery', () => {
+    let query = Foo.find()
+      .fields(['goo'])
+      .sort(['goo'])
+      .limit(1, 1)
+      .where({ $gt: { goo: 1 } });
+    equal(query instanceof PouchDbActiveQuery, true);
+    equal(typeof query.fields, 'function');
+    equal(typeof query.sort, 'function');
+    equal(typeof query.limit, 'function');
+    equal(typeof query.where, 'function');
+    equal(typeof query.one, 'function');
+    equal(typeof query.all, 'function');
+
+    deepEqual(query.params, {
+      fields: ['goo'],
+      limit: { start: 1, end: 1 },
+      sort: ['goo'],
+      where: { '$gt': { goo: 1 } }
+    });
   });
 
-  it('save()', async () => {
-    await model.save()
-    equal(model.isNewRecord, false);
-  });
+});
 
-  it('save()', async () => {
-    const res = await Foo.findOne(model.id);
-    equal(res instanceof Foo, true);
-    equal(JSON.stringify(model.attributes), JSON.stringify(res.attributes));
-  });
+describe('ActiveRecordRelation', () => {
 
-  it('2nd model save()', async () => {
-    model2 = new Foo({ foo: 'baz', goo: 2 });
-    await model2.save()
-  });
-
-  it('findAll()', async () => {
-    const res: Foo[] = await Foo.findAll();
-    equal(res.length, 2);
-    let _model1 = find(res, { id: model.id });
-    let _model2 = find(res, { id: model2.id });
-    equal(_model1 instanceof Foo, true);
-    equal(_model1.foo, 'bar');
-    equal(_model2 instanceof Foo, true);
-    equal(_model2.foo, 'baz');
-  });
-
-  it('findOne()', async () => {
-    const res: Foo = await Foo.findOne({ foo: 'baz' });
-    equal(res instanceof Foo, true);
-    equal(res.foo, 'baz');
-  });
-
-  it('findAll({ goo: { $gt: 1 } })', async () => {
-    const res: Foo[] = await Foo.findAll({ goo: { $gt: 1 } });
-    equal(res.length, 1);
-    equal(res[0].foo, 'baz');
-  });
-
-  it('find() should return ActiveQuery', () => {
-    let query = Foo.find();
-    equal(query instanceof ActiveQuery, true);
-  });
-
-  it('find().one(false) without creating instance', async () => {
-    const res = await Foo.find().one(false);
-    equal(res instanceof Foo, false);
-    equal(res.hasOwnProperty('foo'), true);
-    equal(res.hasOwnProperty('goo'), true);
-    equal(res.hasOwnProperty('_id'), true);
-    equal(res.hasOwnProperty('_rev'), true);
-  });
-
-  it('find().all(false) without creating instances', async () => {
-    const res = await Foo.find().all(false);
-    equal(res.length, 2);
-    equal(res[0] instanceof Foo, false);
-    equal(res[0].hasOwnProperty('foo'), true);
-    equal(res[0].hasOwnProperty('goo'), true);
-    equal(res[0].hasOwnProperty('_id'), true);
-    equal(res[0].hasOwnProperty('_rev'), true);
-  });
-
-  it('relations', async () => {
+  it('manyToMany', async () => {
+    equal(foo.bars instanceof Promise, true);
+    equal(foo.getBars() instanceof Promise, true);
+    equal(typeof foo.getBars, 'function');
+    equal(typeof foo.addBar, 'function');
+    equal(typeof foo.addBars, 'function');
 
     let bar = new Bar({});
     equal(await bar.save() instanceof Bar, true);
@@ -142,26 +160,49 @@ describe('Foo', () => {
     equal(await foo.addBar({}) instanceof Bar, true);
     equal(await foo.addBar(new Bar({})) instanceof Bar, true);
     equal((await foo.bars).length, 5); // only 5 because `bar` can only be added once
+    equal((await bar.foos).length, 1);
+    equal((await bar.foos)[0] instanceof Foo, true);
     equal((await Foo_Bar.findAll()).length, 5);
     const barsQuery = await foo.getBars();
-    equal(barsQuery instanceof TestQuery, true);
+    equal(barsQuery instanceof PouchDbActiveQuery, true);
     equal(barsQuery.params.where[Bar.config.identifier].$in.length, 5);
+  });
 
-    // has many relation
+  it('hasMany', async () => {
     equal(foo.fooChildrens instanceof Promise, true);
     equal(foo.getFooChildrens() instanceof Promise, true);
     equal(typeof foo.getFooChildrens, 'function');
     equal(typeof foo.addFooChildren, 'function');
     equal(typeof foo.addFooChildrens, 'function');
-    // @todo: add more tests for *has many relations*
-    console.log('@todo: add more tests for *has many relations*');
+    equal((await foo.fooChildrens).length, 0);
 
-    // has one relations
+    const goo = await new Foo().save();
+    const fooChild = await foo.addFooChildren({});
+    equal(fooChild instanceof FooChild, true);
+    equal((await foo.addFooChildrens([{}]))[0] instanceof FooChild, true);
+    equal((await goo.addFooChildrens([{}]))[0] instanceof FooChild, true);
+    equal((await foo.fooChildrens).length, 2);
+    equal((await goo.fooChildrens).length, 1);
+    equal((await foo.addFooChildren({})).hasOwnProperty('foo_id'), true);
+    equal((await fooChild.foo) instanceof Foo, true);
+    const fooChildrenQuery = await foo.getFooChildrens();
+    equal(fooChildrenQuery instanceof PouchDbActiveQuery, true);
+    equal(fooChildrenQuery.params.where.foo_id, foo.id);
+  });
+
+  it('hasOne', async () => {
     equal(foo.hasOwnProperty('boo'), true);
     equal(typeof foo.setBoo, 'function');
-    // @todo: add more tests for *has one relations*
-    console.log('@todo: add more tests for *has one relations*');
 
+    const boo = new Boo();
+    equal((await foo.setBoo(boo)) instanceof Boo, true);
+    equal(foo.getAttribute('boo_id'), boo.id);
+    equal(foo.boo_id, boo.id);
+    equal((await foo.boo) instanceof Boo, true);
+    equal((await foo.boo).id, boo.id);
+    await foo.save(); // pouchdb needs to save the record before querying
+    const query = await boo.getFoos();
+    equal((await boo.foos).length, 1);
   });
 
 });

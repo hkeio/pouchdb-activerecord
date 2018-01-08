@@ -6,9 +6,9 @@
   "types": "./types/index.d.ts",
   "scripts": {
     "build": "webpack",
-    "preversion": "npm test && npm run build && git add -A && git commit -m \"pre publish commit\"",
+    "preversion": "npm test",
     "postversion": "git push && npm publish",
-    "test": "mocha -r ts-node/register test/*.spec.ts"
+    "test": "mocha -r ts-node/register test/*.spec.ts && npm run build"
   },
   "repository": {
     "type": "git",
@@ -36,7 +36,7 @@
     "webpack": "^3.10.0"
   },
   "dependencies": {
-    "@hke/activerecord": "^1.0.4",
+    "@hke/activerecord": "^1.1.6",
     "pouchdb": "^6.3.4",
     "pouchdb-find": "^6.3.4"
   }
