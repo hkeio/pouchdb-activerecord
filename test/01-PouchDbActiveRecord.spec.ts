@@ -128,7 +128,7 @@ describe('Foo', () => {
     equal(res[0].hasOwnProperty('_rev'), true);
   });
 
-  it('srelations', async () => {
+  it('relations', async () => {
 
     let bar = new Bar({});
     equal(await bar.save() instanceof Bar, true);
