@@ -25,12 +25,16 @@ describe('PouchDbActiveRecord', () => {
 
 });
 
-class Boo extends ActiveRecord {
-  static _tableName = 'Boo';
+export class TestRecord extends ActiveRecord {
+  static _queryClass = ActiveQuery;
   static dbConfig = { adapter: 'memory', plugins: [PouchDBMemory] };
 }
 
-class Foo extends ActiveRecord {
+class Boo extends TestRecord { static _tableName = 'Boo'; }
+class Bar extends TestRecord { static _tableName = 'Bar'; }
+class Foo_Bar extends TestRecord { static _tableName = 'Foo_Bar'; }
+class FooChild extends TestRecord { static _tableName = 'FooChild'; }
+class Foo extends TestRecord {
   _id: string;
   foo?: string;
   goo?: number;
@@ -38,7 +42,6 @@ class Foo extends ActiveRecord {
   addBoo: (any) => Promise<Boo>;
 
   static _tableName = 'Foo';
-  static dbConfig = { adapter: 'memory', plugins: [PouchDBMemory] };
 
   protected static _attributes: ModelAttribute[] = [
     new ModelAttribute('foo'),
@@ -46,7 +49,9 @@ class Foo extends ActiveRecord {
   ];
 
   protected static _relations: ActiveRecordRelation[] = [
-    ActiveRecordRelation.hasMany('boo', Boo, 'foo_id')
+    ActiveRecordRelation.manyToMany('bars', Bar, Foo_Bar, 'foo_id', 'bar_id'),
+    ActiveRecordRelation.hasMany('fooChildren', FooChild, 'foo_id'),
+    ActiveRecordRelation.hasOne('boo', Boo, 'boo_id')
   ];
 }
 
@@ -121,6 +126,42 @@ describe('Foo', () => {
     equal(res[0].hasOwnProperty('goo'), true);
     equal(res[0].hasOwnProperty('_id'), true);
     equal(res[0].hasOwnProperty('_rev'), true);
+  });
+
+  it('srelations', async () => {
+
+    let bar = new Bar({});
+    equal(await bar.save() instanceof Bar, true);
+    const bars = await foo.addBars([bar, {}, new Bar({})]);
+    await foo.addBars(bars);
+    equal(bars.length, 3);
+    equal(bars[0] instanceof Bar, true);
+    equal(bars[1] instanceof Bar, true);
+    equal(bars[2] instanceof Bar, true);
+    equal(await foo.addBar(bar) instanceof Bar, true);
+    equal(await foo.addBar({}) instanceof Bar, true);
+    equal(await foo.addBar(new Bar({})) instanceof Bar, true);
+    equal((await foo.bars).length, 5); // only 5 because `bar` can only be added once
+    equal((await Foo_Bar.findAll()).length, 5);
+    const barsQuery = await foo.getBars();
+    equal(barsQuery instanceof TestQuery, true);
+    equal(barsQuery.params.where[Bar.config.identifier].$in.length, 5);
+
+    // has many relation
+    equal(foo.fooChildrens instanceof Promise, true);
+    equal(foo.getFooChildrens() instanceof Promise, true);
+    equal(typeof foo.getFooChildrens, 'function');
+    equal(typeof foo.addFooChildren, 'function');
+    equal(typeof foo.addFooChildrens, 'function');
+    // @todo: add more tests for *has many relations*
+    console.log('@todo: add more tests for *has many relations*');
+
+    // has one relations
+    equal(foo.hasOwnProperty('boo'), true);
+    equal(typeof foo.setBoo, 'function');
+    // @todo: add more tests for *has one relations*
+    console.log('@todo: add more tests for *has one relations*');
+
   });
 
 });
