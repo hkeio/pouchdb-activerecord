@@ -1,14 +1,14 @@
 {
   "name": "pouchdb-activerecord",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "PouchDb implementation of @hke/activerecord",
   "main": "index.js",
   "types": "./types/index.d.ts",
   "scripts": {
     "build": "webpack",
-    "preversion": "npm test && npm run build && git add -A && git commit -m \"pre publish commit\"",
+    "preversion": "npm test",
     "postversion": "git push && npm publish",
-    "test": "mocha -r ts-node/register test/*.spec.ts"
+    "test": "mocha -r ts-node/register test/*.spec.ts && npm run build"
   },
   "repository": {
     "type": "git",

@@ -49,7 +49,7 @@ export class PouchDbActiveRecord extends ActiveRecord {
     return this;
   }
 
-  static async save(objects) {
+  static async save(objects): Promise<any[]> {
     let result = [];
     for (let object of objects) {
       if (!(object instanceof this)) {
