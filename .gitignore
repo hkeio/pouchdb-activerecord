@@ -7,4 +7,6 @@ Thumbs.db
 .DS_Store
 
 # Ignored files
-dist
+.nyc_output
+coverage
+types

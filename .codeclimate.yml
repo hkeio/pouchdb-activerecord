@@ -1,0 +1,5 @@
+engines:
+  tslint:
+    enabled: true
+exclude_patterns:
+- "index.js"
